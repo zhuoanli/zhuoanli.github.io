@@ -1,0 +1,136 @@
+/* ─────────────────────────────────────────────────────────────────────────────
+   Design tokens — "The Instrument"
+
+   The accent and data colours are the same three values the segmentation
+   figures use for RV / Myocardium / LV. The palette is not chosen to match the
+   research; it is taken from it, so the site and the figures cannot drift.
+   ──────────────────────────────────────────────────────────────────────────── */
+
+:root {
+  /* ── Type ─────────────────────────────────────────────────────────────── */
+  --font-display: 'Newsreader Variable', ui-serif, Georgia, serif;
+  --font-sans: 'Inter Variable', ui-sans-serif, system-ui, -apple-system, sans-serif;
+  --font-mono: 'JetBrains Mono Variable', ui-monospace, SFMono-Regular, monospace;
+
+  /* Fluid scale. Each step is clamp(min, preferred, max) so nothing needs a
+     media query to stay readable between 320px and 1600px. */
+  --text-xs: 0.75rem;
+  --text-sm: 0.8125rem;
+  --text-base: 0.9375rem;
+  --text-md: 1.0625rem;
+  --text-lg: clamp(1.125rem, 0.5vw + 1rem, 1.375rem);
+  --text-xl: clamp(1.375rem, 1vw + 1.1rem, 1.75rem);
+  --text-2xl: clamp(1.75rem, 2vw + 1.2rem, 2.5rem);
+  --text-3xl: clamp(2.25rem, 3.6vw + 1.2rem, 4rem);
+  --text-4xl: clamp(2.75rem, 5.4vw + 1rem, 5.5rem);
+
+  --leading-tight: 1.08;
+  --leading-snug: 1.28;
+  --leading-normal: 1.62;
+  --tracking-tight: -0.022em;
+  --tracking-wide: 0.02em;
+  --tracking-caps: 0.13em;
+
+  /* ── Space (4px base) ─────────────────────────────────────────────────── */
+  --sp-1: 0.25rem;
+  --sp-2: 0.5rem;
+  --sp-3: 0.75rem;
+  --sp-4: 1rem;
+  --sp-5: 1.5rem;
+  --sp-6: 2rem;
+  --sp-7: 3rem;
+  --sp-8: 4rem;
+  --sp-9: 6rem;
+  --sp-10: 8rem;
+  --section-y: clamp(4rem, 9vh, 7.5rem);
+
+  /* ── Measure ──────────────────────────────────────────────────────────── */
+  --measure: 68ch;
+  --page-max: 76rem;
+  --page-pad: clamp(1.25rem, 5vw, 3.5rem);
+
+  /* ── Shape ────────────────────────────────────────────────────────────── */
+  --radius-sm: 4px;
+  --radius: 8px;
+  --radius-lg: 14px;
+  --radius-full: 999px;
+
+  /* ── Motion ───────────────────────────────────────────────────────────── */
+  --dur-fast: 120ms;
+  --dur: 220ms;
+  --dur-slow: 420ms;
+  --ease: cubic-bezier(0.2, 0, 0, 1);
+  --ease-out: cubic-bezier(0.16, 1, 0.3, 1);
+
+  /* ── Anatomy palette — shared by figures and UI ───────────────────────── */
+  --rv: #d98216;
+  --myo: #0f9d94;
+  --lv: #d8324b;
+
+  color-scheme: light;
+}
+
+/* ── Light: warm paper. Not white — white glares next to a black cine loop. ── */
+:root,
+:root[data-theme='light'] {
+  --bg: #fbfbf9;
+  --bg-sunken: #f4f4f0;
+  --surface: #ffffff;
+  --surface-hover: #fafaf7;
+
+  --ink: #14161a;
+  --ink-secondary: #43474e;
+  --ink-muted: #767b84;
+  --ink-faint: #a3a8b0;
+
+  --line: #e5e4de;
+  --line-strong: #d2d1c9;
+
+  --accent: #0e7c86;
+  --accent-hover: #0a626a;
+  --accent-soft: #e6f4f4;
+  --accent-ink: #ffffff;
+
+  --shadow-sm: 0 1px 2px rgb(20 22 26 / 0.05);
+  --shadow: 0 2px 4px rgb(20 22 26 / 0.04), 0 8px 24px -8px rgb(20 22 26 / 0.09);
+  --shadow-lg: 0 4px 8px rgb(20 22 26 / 0.05), 0 24px 56px -16px rgb(20 22 26 / 0.16);
+
+  /* The cine loop lives on black. In light mode it needs a frame to sit in. */
+  --viewport-bg: #08090b;
+  --viewport-ring: rgb(20 22 26 / 0.1);
+}
+
+/* ── Dark: near-black with a blue cast, the colour of a reading-room monitor ── */
+:root[data-theme='dark'] {
+  --bg: #0b0c0e;
+  --bg-sunken: #08090a;
+  --surface: #131519;
+  --surface-hover: #191c21;
+
+  --ink: #e9eaec;
+  --ink-secondary: #b2b6bd;
+  --ink-muted: #838890;
+  --ink-faint: #5c626b;
+
+  --line: #24272d;
+  --line-strong: #333740;
+
+  --accent: #3ddbd9;
+  --accent-hover: #6ce8e6;
+  --accent-soft: #0f2a2c;
+  --accent-ink: #06231f;
+
+  --shadow-sm: 0 1px 2px rgb(0 0 0 / 0.4);
+  --shadow: 0 2px 4px rgb(0 0 0 / 0.3), 0 8px 24px -8px rgb(0 0 0 / 0.6);
+  --shadow-lg: 0 4px 8px rgb(0 0 0 / 0.4), 0 24px 56px -16px rgb(0 0 0 / 0.7);
+
+  --viewport-bg: #000000;
+  --viewport-ring: rgb(233 234 236 / 0.09);
+
+  /* Saturated marks burn on a dark field. Lift and desaturate very slightly. */
+  --rv: #f0a944;
+  --myo: #2dd4bf;
+  --lv: #f4536b;
+
+  color-scheme: dark;
+}

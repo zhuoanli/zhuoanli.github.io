@@ -1,0 +1,111 @@
+---
+import '@fontsource-variable/newsreader';
+import '@fontsource-variable/inter';
+import '@fontsource-variable/jetbrains-mono';
+import '../styles/global.css';
+
+import Header from '../components/Header.astro';
+import Footer from '../components/Footer.astro';
+import { site } from '../data/site';
+
+interface Props {
+  title?: string;
+  description?: string;
+  /** Home page runs the hero full-bleed under a transparent header. */
+  bleed?: boolean;
+}
+
+const {
+  title,
+  description = site.statement,
+  bleed = false,
+} = Astro.props;
+
+const pageTitle = title ? `${title} — ${site.name}` : `${site.name} — ${site.tagline}`;
+const canonical = new URL(Astro.url.pathname, Astro.site);
+
+// schema.org Person, so a search for the name surfaces the right human with the
+// right affiliation rather than a scatter of profile pages.
+const personSchema = {
+  '@context': 'https://schema.org',
+  '@type': 'Person',
+  name: site.name,
+  url: Astro.site?.href,
+  email: `mailto:${site.email}`,
+  jobTitle: site.role,
+  affiliation: site.affiliation ? { '@type': 'Organization', name: site.affiliation } : undefined,
+  knowsAbout: site.capabilities.map((c) => c.label),
+  sameAs: Object.values(site.links).filter((v) => v && v.startsWith('http')),
+};
+---
+
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>{pageTitle}</title>
+    <meta name="description" content={description} />
+    <link rel="canonical" href={canonical} />
+    <link rel="sitemap" href="/sitemap-index.xml" />
+    <link rel="icon" href="/favicon.svg" type="image/svg+xml" />
+
+    <meta property="og:type" content="website" />
+    <meta property="og:title" content={pageTitle} />
+    <meta property="og:description" content={description} />
+    <meta property="og:url" content={canonical} />
+    <meta property="og:image" content={new URL('/og.png', Astro.site)} />
+    <meta name="twitter:card" content="summary_large_image" />
+
+    <script type="application/ld+json" set:html={JSON.stringify(personSchema)} />
+
+    {/* Runs before first paint: no flash of the wrong theme. */}
+    <script is:inline>
+      (() => {
+        const stored = localStorage.getItem('theme');
+        const prefersDark = matchMedia('(prefers-color-scheme: dark)').matches;
+        document.documentElement.dataset.theme = stored ?? (prefersDark ? 'dark' : 'light');
+      })();
+    </script>
+  </head>
+
+  <body class:list={[{ bleed }]}>
+    <a class="skip-link" href="#main">Skip to content</a>
+    <Header bleed={bleed} />
+    <main id="main" tabindex="-1">
+      <slot />
+    </main>
+    <Footer />
+
+    <script>
+      // Reveal-on-scroll. One observer for the whole page; elements unobserve
+      // themselves once shown, so nothing keeps firing during long scrolls.
+      const items = document.querySelectorAll('[data-reveal]');
+      if (matchMedia('(prefers-reduced-motion: reduce)').matches) {
+        items.forEach((el) => el.classList.add('is-in'));
+      } else {
+        const io = new IntersectionObserver(
+          (entries) => {
+            for (const entry of entries) {
+              if (!entry.isIntersecting) continue;
+              const el = entry.target as HTMLElement;
+              // Stagger siblings so a grid resolves in sequence, not all at once.
+              el.style.transitionDelay = `${Number(el.dataset.reveal || 0) * 70}ms`;
+              el.classList.add('is-in');
+              io.unobserve(el);
+            }
+          },
+          { rootMargin: '0px 0px -12% 0px', threshold: 0.05 },
+        );
+        items.forEach((el) => io.observe(el));
+      }
+    </script>
+  </body>
+</html>
+
+<style>
+  main {
+    /* Never let a focus jump on #main draw an outline around the whole page. */
+    outline: none;
+  }
+</style>

@@ -1,0 +1,125 @@
+---
+import { metrics } from '../data/site';
+
+const fmt = (v: number, f: string) =>
+  f === 'int' ? String(v) : f === 'dp2' ? v.toFixed(2) : v.toFixed(3);
+---
+
+<section class="band" aria-label="Headline results">
+  <div class="wrap row">
+    {
+      metrics.map((m, i) => (
+        <div class="cell" data-reveal={i}>
+          <p class="value num" data-count={m.value} data-format={m.format}>
+            {fmt(m.value, m.format)}
+            {'unit' in m && m.unit ? <span class="unit">{m.unit}</span> : null}
+          </p>
+          <p class="label">{m.label}</p>
+          <p class="note">{m.note}</p>
+        </div>
+      ))
+    }
+  </div>
+</section>
+
+<style>
+  .band {
+    border-block: 1px solid var(--line);
+    background: var(--bg-sunken);
+    padding-block: var(--sp-7);
+  }
+
+  .row {
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    gap: var(--sp-5);
+  }
+
+  .cell {
+    display: grid;
+    gap: 0.2rem;
+    align-content: start;
+    padding-inline-start: var(--sp-4);
+    border-inline-start: 1px solid var(--line);
+  }
+
+  .value {
+    font-size: clamp(1.75rem, 3vw, 2.5rem);
+    font-weight: 300;
+    line-height: 1.05;
+    letter-spacing: -0.03em;
+    color: var(--ink);
+  }
+
+  .unit {
+    font-size: 0.45em;
+    color: var(--ink-muted);
+    margin-inline-start: 0.15em;
+    letter-spacing: 0;
+  }
+
+  .label {
+    font-size: var(--text-sm);
+    font-weight: 500;
+    color: var(--ink-secondary);
+    margin-block-start: var(--sp-2);
+  }
+
+  .note {
+    font-family: var(--font-mono);
+    font-size: var(--text-xs);
+    color: var(--ink-muted);
+    line-height: 1.4;
+  }
+
+  @media (width < 56rem) {
+    .row {
+      grid-template-columns: repeat(2, 1fr);
+      gap: var(--sp-6) var(--sp-4);
+    }
+  }
+</style>
+
+<script>
+  // Count up once, when the number first comes into view. Tabular figures in
+  // the mono face mean the width never shifts while it runs.
+  const cells = document.querySelectorAll<HTMLElement>('[data-count]');
+  const reduced = matchMedia('(prefers-reduced-motion: reduce)').matches;
+
+  if (cells.length && !reduced) {
+    const format = (v: number, f: string) =>
+      f === 'int' ? String(Math.round(v)) : f === 'dp2' ? v.toFixed(2) : v.toFixed(3);
+
+    const io = new IntersectionObserver(
+      (entries) => {
+        for (const entry of entries) {
+          if (!entry.isIntersecting) continue;
+          const el = entry.target as HTMLElement;
+          io.unobserve(el);
+
+          const target = Number(el.dataset.count);
+          const fmt = el.dataset.format || 'dp3';
+          const unit = el.querySelector('.unit');
+          const start = performance.now();
+          const DURATION = 900;
+
+          const step = (now: number) => {
+            const t = Math.min(1, (now - start) / DURATION);
+            // easeOutExpo: fast commit, soft landing on the true value
+            const eased = t === 1 ? 1 : 1 - Math.pow(2, -10 * t);
+            el.firstChild!.nodeValue = format(target * eased, fmt);
+            if (t < 1) requestAnimationFrame(step);
+            else el.firstChild!.nodeValue = format(target, fmt);
+          };
+
+          el.firstChild!.nodeValue = format(0, fmt);
+          if (unit) el.appendChild(unit);
+          requestAnimationFrame(step);
+        }
+      },
+      { threshold: 0.6 },
+    );
+
+    cells.forEach((el) => io.observe(el));
+  }
+</script>

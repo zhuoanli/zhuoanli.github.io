@@ -1,0 +1,92 @@
+---
+// Light/dark switch. Uses the View Transitions API where available so the two
+// themes cross-fade instead of snapping; falls back silently everywhere else.
+---
+
+<button
+  id="theme-toggle"
+  type="button"
+  class="toggle"
+  aria-label="Switch colour theme"
+  title="Switch colour theme"
+>
+  <svg class="sun" viewBox="0 0 24 24" aria-hidden="true" fill="none" stroke="currentColor">
+    <circle cx="12" cy="12" r="4.2" stroke-width="1.6"></circle>
+    <path
+      stroke-width="1.6"
+      stroke-linecap="round"
+      d="M12 2.6v2.2M12 19.2v2.2M21.4 12h-2.2M4.8 12H2.6M18.6 5.4l-1.6 1.6M7 17l-1.6 1.6M18.6 18.6L17 17M7 7L5.4 5.4"
+    ></path>
+  </svg>
+  <svg class="moon" viewBox="0 0 24 24" aria-hidden="true" fill="none" stroke="currentColor">
+    <path
+      stroke-width="1.6"
+      stroke-linejoin="round"
+      d="M20.5 14.4A8.6 8.6 0 0 1 9.6 3.5a8.6 8.6 0 1 0 10.9 10.9Z"></path>
+  </svg>
+</button>
+
+<style>
+  .toggle {
+    display: grid;
+    place-items: center;
+    width: 2.25rem;
+    height: 2.25rem;
+    padding: 0;
+    border: 1px solid var(--line);
+    border-radius: var(--radius-full);
+    background: transparent;
+    color: var(--ink-secondary);
+    cursor: pointer;
+    transition: background-color var(--dur-fast) var(--ease),
+      border-color var(--dur-fast) var(--ease), color var(--dur-fast) var(--ease);
+  }
+
+  .toggle:hover {
+    background: var(--surface-hover);
+    border-color: var(--line-strong);
+    color: var(--ink);
+  }
+
+  .toggle svg {
+    grid-area: 1 / 1;
+    width: 1.05rem;
+    height: 1.05rem;
+    transition: opacity var(--dur) var(--ease), transform var(--dur) var(--ease);
+  }
+
+  /* Only one icon is ever visible; the other is rotated out. */
+  :global(:root[data-theme='light']) .moon,
+  :global(:root[data-theme='dark']) .sun {
+    opacity: 0;
+    transform: rotate(-70deg) scale(0.6);
+  }
+</style>
+
+<script>
+  const toggle = document.getElementById('theme-toggle');
+
+  const apply = () => {
+    const root = document.documentElement;
+    root.dataset.theme = root.dataset.theme === 'dark' ? 'light' : 'dark';
+    localStorage.setItem('theme', root.dataset.theme);
+  };
+
+  toggle?.addEventListener('click', () => {
+    const reduced = matchMedia('(prefers-reduced-motion: reduce)').matches;
+    if (!reduced && 'startViewTransition' in document) {
+      (document as any).startViewTransition(apply);
+    } else {
+      apply();
+    }
+  });
+</script>
+
+<style is:global>
+  /* Cross-fade the whole document on theme change rather than sliding it. */
+  ::view-transition-old(root),
+  ::view-transition-new(root) {
+    animation-duration: 260ms;
+    mix-blend-mode: normal;
+  }
+</style>

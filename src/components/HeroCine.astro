@@ -1,0 +1,439 @@
+---
+import { hero } from '../data/site';
+
+// The player reads its geometry, timing and contours from hero-contours.json at
+// runtime, so re-running scripts/build_hero_media.py with a different patient
+// needs no change here.
+---
+
+<figure class="viewport" data-cine>
+  <div class="frame">
+    <canvas data-canvas width="512" height="512" role="img"
+      aria-label="Short-axis cardiac cine MRI with RV, myocardium and left ventricle contours tracking through one cardiac cycle."
+    ></canvas>
+
+    {/* Shown until the sprite decodes, and whenever motion is reduced. */}
+    <img class="poster" src={hero.media.poster} alt="" aria-hidden="true" data-poster />
+
+    <div class="chrome" aria-hidden="true">
+      <span class="corner tl"></span><span class="corner tr"></span>
+      <span class="corner bl"></span><span class="corner br"></span>
+    </div>
+
+    <div class="hud">
+      <span class="phase num" data-phase>ED</span>
+      <span class="scan num" data-frame>01/28</span>
+    </div>
+  </div>
+
+  <div class="controls">
+    <button type="button" class="ctl" data-play aria-label="Pause cine loop">
+      <svg viewBox="0 0 16 16" aria-hidden="true" class="i-pause">
+        <rect x="4" y="3" width="3" height="10" rx="1"></rect>
+        <rect x="9" y="3" width="3" height="10" rx="1"></rect>
+      </svg>
+      <svg viewBox="0 0 16 16" aria-hidden="true" class="i-play">
+        <path d="M5 3.4v9.2a.6.6 0 0 0 .93.5l7-4.6a.6.6 0 0 0 0-1l-7-4.6A.6.6 0 0 0 5 3.4Z"></path>
+      </svg>
+    </button>
+
+    <label class="switch">
+      <input type="checkbox" checked data-overlay />
+      <span class="track"><span class="thumb"></span></span>
+      <span class="switch-label">Segmentation</span>
+    </label>
+
+    <ul class="legend">
+      {
+        hero.labels.map((l) => (
+          <li>
+            <span class="swatch" style={`background: var(${l.varName})`} />
+            {l.label}
+          </li>
+        ))
+      }
+    </ul>
+  </div>
+
+  <figcaption>
+    <strong>{hero.caption}.</strong>
+    {hero.provenance}
+  </figcaption>
+</figure>
+
+<style>
+  .viewport {
+    margin: 0;
+    display: grid;
+    gap: var(--sp-4);
+  }
+
+  /* The image lives on black in both themes — that is how it is read
+     clinically, and it keeps the contour colours honest. */
+  .frame {
+    position: relative;
+    aspect-ratio: 1;
+    background: var(--viewport-bg);
+    border-radius: var(--radius-lg);
+    overflow: hidden;
+    box-shadow: 0 0 0 1px var(--viewport-ring), var(--shadow-lg);
+  }
+
+  canvas,
+  .poster {
+    position: absolute;
+    inset: 0;
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+  }
+
+  .poster {
+    transition: opacity var(--dur-slow) var(--ease);
+  }
+
+  .frame[data-ready] .poster {
+    opacity: 0;
+  }
+
+  /* Reticle corners: instrument framing, four 1px marks, nothing more. */
+  .corner {
+    position: absolute;
+    width: 13px;
+    height: 13px;
+    border: 1px solid rgb(255 255 255 / 0.34);
+  }
+  .tl { top: 12px; left: 12px; border-right: 0; border-bottom: 0; }
+  .tr { top: 12px; right: 12px; border-left: 0; border-bottom: 0; }
+  .bl { bottom: 12px; left: 12px; border-right: 0; border-top: 0; }
+  .br { bottom: 12px; right: 12px; border-left: 0; border-top: 0; }
+
+  .hud {
+    position: absolute;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    display: flex;
+    justify-content: space-between;
+    padding: var(--sp-4) calc(var(--sp-4) + 14px);
+    font-size: 0.6875rem;
+    letter-spacing: var(--tracking-caps);
+    color: rgb(255 255 255 / 0.6);
+    background: linear-gradient(to top, rgb(0 0 0 / 0.55), transparent);
+    pointer-events: none;
+  }
+
+  .phase {
+    color: rgb(255 255 255 / 0.92);
+  }
+
+  .controls {
+    display: flex;
+    align-items: center;
+    gap: var(--sp-4);
+    flex-wrap: wrap;
+  }
+
+  .ctl {
+    display: grid;
+    place-items: center;
+    width: 2rem;
+    height: 2rem;
+    padding: 0;
+    border: 1px solid var(--line);
+    border-radius: var(--radius-full);
+    background: transparent;
+    color: var(--ink-secondary);
+    cursor: pointer;
+    transition: color var(--dur-fast) var(--ease), border-color var(--dur-fast) var(--ease);
+  }
+
+  .ctl:hover {
+    color: var(--ink);
+    border-color: var(--line-strong);
+  }
+
+  .ctl svg {
+    grid-area: 1 / 1;
+    width: 0.8rem;
+    height: 0.8rem;
+    fill: currentColor;
+  }
+
+  .ctl .i-play { display: none; }
+  .ctl[data-paused] .i-pause { display: none; }
+  .ctl[data-paused] .i-play { display: block; }
+
+  /* Switch */
+  .switch {
+    display: inline-flex;
+    align-items: center;
+    gap: var(--sp-2);
+    cursor: pointer;
+    user-select: none;
+  }
+
+  .switch input {
+    position: absolute;
+    opacity: 0;
+    width: 0;
+    height: 0;
+  }
+
+  .track {
+    position: relative;
+    width: 2rem;
+    height: 1.125rem;
+    border-radius: var(--radius-full);
+    background: var(--line-strong);
+    transition: background-color var(--dur) var(--ease);
+  }
+
+  .thumb {
+    position: absolute;
+    top: 2px;
+    left: 2px;
+    width: 0.875rem;
+    height: 0.875rem;
+    border-radius: var(--radius-full);
+    background: var(--surface);
+    box-shadow: var(--shadow-sm);
+    transition: transform var(--dur) var(--ease-out);
+  }
+
+  .switch input:checked + .track {
+    background: var(--accent);
+  }
+
+  .switch input:checked + .track .thumb {
+    transform: translateX(0.875rem);
+  }
+
+  .switch input:focus-visible + .track {
+    outline: 2px solid var(--accent);
+    outline-offset: 3px;
+  }
+
+  .switch-label {
+    font-size: var(--text-sm);
+    color: var(--ink-secondary);
+  }
+
+  .legend {
+    display: flex;
+    gap: var(--sp-4);
+    list-style: none;
+    padding: 0;
+    margin: 0;
+    margin-inline-start: auto;
+    font-family: var(--font-mono);
+    font-size: var(--text-xs);
+    color: var(--ink-muted);
+  }
+
+  .legend li {
+    display: flex;
+    align-items: center;
+    gap: var(--sp-2);
+  }
+
+  .swatch {
+    width: 9px;
+    height: 9px;
+    border-radius: 2px;
+  }
+
+  figcaption {
+    font-size: var(--text-sm);
+    line-height: 1.55;
+    color: var(--ink-muted);
+    max-width: 54ch;
+  }
+
+  figcaption strong {
+    color: var(--ink-secondary);
+    font-weight: 500;
+  }
+
+  @media (width < 34rem) {
+    .legend {
+      margin-inline-start: 0;
+      width: 100%;
+    }
+  }
+</style>
+
+<script>
+  type Contours = Record<string, number[][][]>;
+  interface CineData {
+    viewBox: number;
+    cell: number;
+    cols: number;
+    frames: number;
+    frameMs: number;
+    edIdx: number;
+    esIdx: number;
+    labels: string[];
+    contours: Contours[];
+  }
+
+  const root = document.querySelector<HTMLElement>('[data-cine]');
+  if (root) {
+    const canvas = root.querySelector<HTMLCanvasElement>('[data-canvas]')!;
+    const frameEl = root.querySelector<HTMLElement>('.frame')!;
+    const playBtn = root.querySelector<HTMLButtonElement>('[data-play]')!;
+    const overlayBox = root.querySelector<HTMLInputElement>('[data-overlay]')!;
+    const phaseEl = root.querySelector<HTMLElement>('[data-phase]')!;
+    const counterEl = root.querySelector<HTMLElement>('[data-frame]')!;
+    const ctx = canvas.getContext('2d')!;
+
+    const reduced = matchMedia('(prefers-reduced-motion: reduce)');
+
+    let data: CineData | null = null;
+    let sprite: HTMLImageElement | null = null;
+    let frame = 0;
+    let playing = false;
+    let visible = true;
+    let last = 0;
+    let raf = 0;
+
+    // Contour colours come from the CSS custom properties, so the overlay
+    // follows the theme without re-encoding anything.
+    const colourOf = (label: string) =>
+      getComputedStyle(document.documentElement).getPropertyValue(`--${label}`).trim() || '#fff';
+
+    const sizeCanvas = () => {
+      const dpr = Math.min(devicePixelRatio || 1, 2);
+      const box = frameEl.getBoundingClientRect();
+      canvas.width = Math.round(box.width * dpr);
+      canvas.height = Math.round(box.height * dpr);
+    };
+
+    const draw = () => {
+      if (!data || !sprite) return;
+      const { cell, cols, viewBox } = data;
+      const w = canvas.width;
+      const h = canvas.height;
+
+      ctx.clearRect(0, 0, w, h);
+      ctx.drawImage(
+        sprite,
+        (frame % cols) * cell,
+        Math.floor(frame / cols) * cell,
+        cell,
+        cell,
+        0,
+        0,
+        w,
+        h,
+      );
+
+      if (overlayBox.checked) {
+        const s = w / viewBox;
+        ctx.lineJoin = 'round';
+        ctx.lineCap = 'round';
+        ctx.lineWidth = Math.max(1.5, w * 0.0042);
+        // A dark rim under each stroke keeps the contour legible where it
+        // crosses bright blood pool.
+        for (const pass of ['shadow', 'stroke'] as const) {
+          for (const label of data.labels) {
+            const rings = data.contours[frame][label] ?? [];
+            ctx.strokeStyle = pass === 'shadow' ? 'rgba(0,0,0,0.55)' : colourOf(label);
+            ctx.lineWidth =
+              pass === 'shadow' ? Math.max(3, w * 0.0082) : Math.max(1.5, w * 0.0042);
+            for (const ring of rings) {
+              if (ring.length < 2) continue;
+              ctx.beginPath();
+              ctx.moveTo(ring[0][0] * s, ring[0][1] * s);
+              for (let i = 1; i < ring.length; i++) ctx.lineTo(ring[i][0] * s, ring[i][1] * s);
+              ctx.closePath();
+              ctx.stroke();
+            }
+          }
+        }
+      }
+
+      const n = String(data.frames).padStart(2, '0');
+      counterEl.textContent = `${String(frame + 1).padStart(2, '0')}/${n}`;
+      phaseEl.textContent =
+        frame === data.edIdx ? 'ED' : frame === data.esIdx ? 'ES' : `t=${frame}`;
+    };
+
+    const tick = (now: number) => {
+      if (!data) return;
+      if (now - last >= data.frameMs) {
+        last = now;
+        frame = (frame + 1) % data.frames;
+        draw();
+      }
+      raf = requestAnimationFrame(tick);
+    };
+
+    const play = () => {
+      if (playing || !data) return;
+      playing = true;
+      last = 0;
+      playBtn.removeAttribute('data-paused');
+      playBtn.setAttribute('aria-label', 'Pause cine loop');
+      raf = requestAnimationFrame(tick);
+    };
+
+    const pause = () => {
+      playing = false;
+      cancelAnimationFrame(raf);
+      playBtn.setAttribute('data-paused', '');
+      playBtn.setAttribute('aria-label', 'Play cine loop');
+    };
+
+    playBtn.addEventListener('click', () => (playing ? pause() : play()));
+    overlayBox.addEventListener('change', draw);
+
+    // Repaint on theme change so the contours pick up the new palette.
+    new MutationObserver(draw).observe(document.documentElement, {
+      attributes: true,
+      attributeFilter: ['data-theme'],
+    });
+
+    let resizeTimer = 0;
+    addEventListener('resize', () => {
+      clearTimeout(resizeTimer);
+      resizeTimer = window.setTimeout(() => {
+        sizeCanvas();
+        draw();
+      }, 120);
+    });
+
+    // Do not burn a frame budget on a loop nobody is looking at.
+    new IntersectionObserver(
+      ([e]) => {
+        visible = e.isIntersecting;
+        if (visible && !reduced.matches) play();
+        else if (!visible) pause();
+      },
+      { threshold: 0.15 },
+    ).observe(root);
+
+    (async () => {
+      const res = await fetch('/media/hero-contours.json');
+      data = await res.json();
+
+      sprite = new Image();
+      sprite.decoding = 'async';
+      sprite.src = '/media/hero-cine.webp';
+      await sprite.decode();
+
+      frame = data!.edIdx;
+      sizeCanvas();
+      draw();
+      frameEl.setAttribute('data-ready', '');
+
+      if (reduced.matches) pause();
+      else if (visible) play();
+    })().catch(() => {
+      // Leave the poster in place; the page still reads correctly without JS.
+      frameEl.removeAttribute('data-ready');
+    });
+
+    reduced.addEventListener('change', (e) => (e.matches ? pause() : play()));
+  }
+</script>
