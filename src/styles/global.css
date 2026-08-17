@@ -207,6 +207,237 @@ pre {
   background: var(--line);
 }
 
+/* A horizontal run of things that should wrap as a group rather than as text. */
+.cluster {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: var(--sp-3);
+}
+
+/* ── Buttons ────────────────────────────────────────────────────────────── */
+
+.btn {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--sp-2);
+  padding: 0.55rem 1.1rem;
+  border: 1px solid var(--line-strong);
+  border-radius: var(--radius-full);
+  background: transparent;
+  font-size: var(--text-sm);
+  font-weight: 480;
+  text-decoration: none;
+  color: var(--ink);
+  cursor: pointer;
+  transition: background-color var(--dur-fast) var(--ease),
+    border-color var(--dur-fast) var(--ease), color var(--dur-fast) var(--ease);
+}
+
+.btn:hover {
+  background: var(--surface-hover);
+  border-color: var(--ink-faint);
+  color: var(--ink);
+}
+
+.btn-primary {
+  background: var(--accent);
+  border-color: var(--accent);
+  color: var(--accent-ink);
+}
+
+.btn-primary:hover {
+  background: var(--accent-hover);
+  border-color: var(--accent-hover);
+  color: var(--accent-ink);
+}
+
+/* The small pill used for PDF / arXiv / Code rows under a citation. */
+.btn-sm {
+  padding: 0.25rem 0.65rem;
+  border-color: var(--line);
+  font-family: var(--font-mono);
+  font-size: var(--text-xs);
+  font-weight: 500;
+  letter-spacing: var(--tracking-wide);
+  color: var(--ink-secondary);
+}
+
+.btn-sm:hover {
+  border-color: var(--accent);
+  background: var(--accent-soft);
+  color: var(--accent);
+}
+
+/* ── Chips: capability anchors, topic filters, stack tags ───────────────── */
+
+.chips {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--sp-2);
+  list-style: none;
+  padding: 0;
+  margin: 0;
+}
+
+/* Works as <a>, <button> or inert <span>; only the first two get hover. */
+.chip {
+  display: inline-block;
+  padding: 0.3rem 0.7rem;
+  border: 1px solid var(--line);
+  border-radius: var(--radius-full);
+  background: transparent;
+  font-family: var(--font-mono);
+  font-size: var(--text-xs);
+  letter-spacing: var(--tracking-wide);
+  color: var(--ink-muted);
+  text-decoration: none;
+  transition: border-color var(--dur-fast) var(--ease),
+    color var(--dur-fast) var(--ease), background-color var(--dur-fast) var(--ease);
+}
+
+a.chip,
+button.chip {
+  cursor: pointer;
+}
+
+a.chip:hover,
+button.chip:hover {
+  color: var(--accent);
+  border-color: var(--accent);
+  background: var(--accent-soft);
+}
+
+/* Selected state for the topic filter on /publications. */
+.chip[aria-pressed='true'] {
+  color: var(--accent);
+  border-color: var(--accent);
+  background: var(--accent-soft);
+}
+
+/* ── Cards ──────────────────────────────────────────────────────────────── */
+
+.card {
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  min-width: 0;
+  background: var(--card-bg);
+  border: 1px solid var(--card-line);
+  border-radius: var(--radius-xl);
+  overflow: hidden;
+  transition: border-color var(--dur) var(--ease), box-shadow var(--dur) var(--ease),
+    transform var(--dur) var(--ease-out), background-color var(--dur) var(--ease);
+  box-shadow: var(--card-shadow);
+}
+
+.card:hover {
+  background: var(--card-bg-hover);
+  border-color: var(--card-line-hover);
+  box-shadow: var(--card-shadow-hover);
+  transform: translateY(-3px);
+}
+
+/* Keyboard users get the same affordance as the mouse. */
+.card:focus-within {
+  border-color: var(--card-line-hover);
+  box-shadow: var(--card-shadow-hover);
+}
+
+/* The imaging slot at the top of a card. */
+.card-media {
+  position: relative;
+  border-block-end: 1px solid var(--card-line);
+  background: var(--viewport-bg);
+}
+
+.card-body {
+  display: flex;
+  flex-direction: column;
+  gap: var(--sp-3);
+  padding: var(--sp-5);
+  flex: 1;
+}
+
+/* Stretches a link over the whole card so the entire surface is the target,
+   while the visible focus ring stays on the text. */
+.card-link::after {
+  content: '';
+  position: absolute;
+  inset: 0;
+  z-index: 3;
+}
+
+/* ── Bands: full-bleed tonal sections ───────────────────────────────────── */
+
+.band {
+  background: var(--grad-band);
+  border-block: 1px solid var(--line);
+}
+
+.band-flush {
+  border-block-start: 0;
+}
+
+/* ── Section heads ──────────────────────────────────────────────────────── */
+
+.section-head {
+  margin-block-end: var(--sp-6);
+  max-width: 62ch;
+}
+
+.section-head h2 {
+  margin-block-start: var(--sp-4);
+}
+
+.section-head .lede {
+  margin-block-start: var(--sp-3);
+  max-width: 58ch;
+}
+
+/* The trailing link under a grid: "All publications →". */
+.more {
+  display: inline-block;
+  margin-block-start: var(--sp-6);
+  font-family: var(--font-mono);
+  font-size: var(--text-xs);
+  letter-spacing: var(--tracking-wide);
+  color: var(--ink-secondary);
+  text-decoration: none;
+}
+
+.more:hover {
+  color: var(--accent);
+}
+
+/* ── Glow: the wash that seats imaging on the page ──────────────────────── */
+
+.glow {
+  position: relative;
+}
+
+.glow::before {
+  content: '';
+  position: absolute;
+  inset: -20% -10%;
+  background: var(--halo);
+  pointer-events: none;
+  z-index: -1;
+}
+
+/* ── Empty state ────────────────────────────────────────────────────────── */
+
+/* Content lands here over time. Until it does, a list must still read as a
+   deliberate page rather than a broken one. */
+.empty {
+  border: 1px dashed var(--line-strong);
+  border-radius: var(--radius-lg);
+  padding: var(--sp-7) var(--sp-5);
+  text-align: center;
+  color: var(--ink-muted);
+  font-size: var(--text-base);
+}
+
 /* ── Focus: visible, never ugly, never suppressed ───────────────────────── */
 
 :focus-visible {
@@ -247,14 +478,16 @@ pre {
 
 /* ── Scroll-in reveal. Opt-in via [data-reveal]; JS adds .is-in. ─────────── */
 
-[data-reveal] {
+/* Scoped to .js — set on <html> by the inline script in BaseLayout — so the
+   hidden state only exists when there is JS around to undo it. */
+.js [data-reveal] {
   opacity: 0;
   transform: translateY(12px);
   transition: opacity var(--dur-slow) var(--ease-out),
     transform var(--dur-slow) var(--ease-out);
 }
 
-[data-reveal].is-in {
+.js [data-reveal].is-in {
   opacity: 1;
   transform: none;
 }
@@ -292,6 +525,13 @@ pre {
   }
 
   .no-print {
+    display: none !important;
+  }
+
+  /* Site chrome is navigation; a printed CV has nowhere to navigate to. */
+  .header,
+  .footer,
+  .skip-link {
     display: none !important;
   }
 

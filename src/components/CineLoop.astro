@@ -1,0 +1,154 @@
+---
+/**
+ * A cardiac cine loop, driven entirely by CSS.
+ *
+ * The hero uses a canvas because it redraws contours per frame. Cards cannot
+ * afford that — HeroCine is a singleton, and one canvas per card would be
+ * absurd. So this walks the same 7x4 sprite sheet with two stepped keyframe
+ * animations and ships zero JavaScript, which means any number of instances
+ * cost nothing and they all stay in phase on the same 1120ms clock.
+ *
+ * Default behaviour is a still at end-diastole with the real contour drawn
+ * over it; hover plays the cycle and fades the outline out, because a static
+ * outline over a moving heart would be a lie.
+ */
+import ContourMark from './ContourMark.astro';
+import { cine } from '../lib/contours';
+
+interface Props {
+  /** Screen-reader description. Falls back to the loop's provenance. */
+  alt?: string;
+  play?: 'hover' | 'always';
+  /**
+   * Which frame to rest on, 0–27. A row of loops looks like copies of one
+   * picture unless each holds a different moment of the beat.
+   */
+  frame?: number;
+  /** Draw the segmentation outline over the still frame. */
+  overlay?: boolean;
+  class?: string;
+}
+
+const {
+  alt = `Short-axis cardiac cine MRI, one cycle. ${cine.source}.`,
+  play = 'hover',
+  frame = cine.edIdx,
+  overlay = true,
+  class: className,
+} = Astro.props;
+
+const start = ((frame % cine.frames) + cine.frames) % cine.frames;
+---
+
+<div
+  class:list={['cine', play, className]}
+  style={`--cine-frame: ${start}`}
+  role="img"
+  aria-label={alt}
+>
+  <div class="film"></div>
+  {/* `fit="full"` is required: the outline must sit in the same coordinate
+      space as the frame it is drawn over, not be cropped to itself. */}
+  {overlay && (
+    <ContourMark class="overlay" variant="anatomy" weight={5} frame={start} fit="full" />
+  )}
+  <div class="ring" aria-hidden="true"></div>
+</div>
+
+<style>
+  .cine {
+    position: relative;
+    aspect-ratio: 1;
+    overflow: hidden;
+    background: var(--viewport-bg);
+    isolation: isolate;
+  }
+
+  .film {
+    position: absolute;
+    inset: 0;
+    background-image: url('/media/hero-cine.webp');
+    background-repeat: no-repeat;
+    /* 7 columns x 4 rows of 512px cells. */
+    background-size: 700% 400%;
+    background-position: 0% 0%;
+    /* One column step every 40ms (7 x 40 = 280ms), one row step per column
+       cycle, so the two together walk all 28 frames in 1120ms. */
+    animation:
+      cine-x 280ms steps(7) infinite,
+      cine-y var(--cine-cycle) steps(4) infinite;
+    /* A negative delay parks a paused animation at that point in its cycle,
+       which is how each instance rests on its own frame.
+       The extra -20ms lands mid-frame on purpose: an exact multiple of the
+       frame time sits on a steps() boundary, where browsers resolve to the
+       previous step and the loop shows the wrong cell. */
+    animation-delay:
+      calc(var(--cine-frame, 0) * -40ms - 20ms),
+      calc(var(--cine-frame, 0) * -40ms - 20ms);
+  }
+
+  /* Percentage background-position maps column i to i/(cols-1). Running the
+     keyframe to 700/6% makes the 7 stepped samples land exactly on those. */
+  @keyframes cine-x {
+    from {
+      background-position-x: 0%;
+    }
+    to {
+      background-position-x: 116.6667%;
+    }
+  }
+
+  @keyframes cine-y {
+    from {
+      background-position-y: 0%;
+    }
+    to {
+      background-position-y: 133.3333%;
+    }
+  }
+
+  .cine.hover .film {
+    animation-play-state: paused;
+  }
+
+  .cine.hover:hover .film {
+    animation-play-state: running;
+  }
+
+  /* `:global` is required — the overlay is a child component's root element,
+     so it carries ContourMark's scope id, never this file's. */
+  .cine :global(.overlay) {
+    position: absolute;
+    inset: 0;
+    z-index: 1;
+    opacity: 0.92;
+    transition: opacity var(--dur) var(--ease);
+    filter: drop-shadow(0 0 2px rgb(0 0 0 / 0.75));
+  }
+
+  /* The outline belongs to the still frame only. */
+  .cine.hover:hover :global(.overlay),
+  .cine.always :global(.overlay) {
+    opacity: 0;
+  }
+
+  .ring {
+    position: absolute;
+    inset: 0;
+    z-index: 2;
+    pointer-events: none;
+    box-shadow: inset 0 0 0 1px var(--viewport-ring);
+    /* Sinks the corners so the loop reads as an aperture, not a photograph. */
+    background: radial-gradient(120% 120% at 50% 45%, transparent 55%, rgb(0 0 0 / 0.45));
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    .film {
+      animation: none;
+      background-position: 0% 0%;
+    }
+    .cine :global(.overlay) {
+      opacity: 0.92;
+    }
+  }
+</style>

@@ -1,0 +1,83 @@
+---
+/**
+ * The site's ornament: the actual segmentation outline, drawn as line art.
+ *
+ * It is not decoration invented to look scientific — it is the same polygon
+ * MedSAM2 produced for the hero, at whatever frame you ask for. That is the
+ * whole idea: the visual language is the output.
+ */
+import { cine, contourBox, pathsFor, type Label } from '../lib/contours';
+
+interface Props {
+  /** 0–27. Default is end-diastole, the fullest and most legible outline. */
+  frame?: number;
+  labels?: readonly Label[];
+  /** `ghost` = single faint accent stroke. `anatomy` = the RV/myo/LV colours. */
+  variant?: 'ghost' | 'anatomy';
+  /** Stroke width in viewBox units (the source box is 1000 across). */
+  weight?: number;
+  /**
+   * `tight` crops to the heart — right for ornament, where empty slice around
+   * it is wasted space. `full` keeps the original 1000-unit box, which is the
+   * only way the outline still registers with the cine frame underneath it.
+   */
+  fit?: 'tight' | 'full';
+  class?: string;
+}
+
+const {
+  frame = cine.edIdx,
+  labels = cine.labels,
+  variant = 'ghost',
+  weight = 6,
+  fit = 'tight',
+  class: className,
+} = Astro.props;
+
+const paths = pathsFor(frame, labels);
+const box =
+  fit === 'full'
+    ? `0 0 ${cine.viewBox} ${cine.viewBox}`
+    : `${contourBox.x} ${contourBox.y} ${contourBox.w} ${contourBox.h}`;
+---
+
+<svg
+  class:list={['mark', variant, className]}
+  viewBox={box}
+  fill="none"
+  stroke-width={weight}
+  stroke-linejoin="round"
+  aria-hidden="true"
+  focusable="false"
+>
+  {paths.map((p) => <path d={p.d} data-label={p.label} />)}
+</svg>
+
+<style>
+  .mark {
+    display: block;
+    width: 100%;
+    height: auto;
+    overflow: visible;
+  }
+
+  .ghost path {
+    stroke: var(--mark-stroke);
+  }
+
+  /* The one nearest the reader is drawn strongest, so the three rings read as
+     depth rather than as three equal circles. */
+  .ghost path[data-label='myo'] {
+    stroke: var(--mark-stroke-strong);
+  }
+
+  .anatomy path[data-label='rv'] {
+    stroke: var(--rv);
+  }
+  .anatomy path[data-label='myo'] {
+    stroke: var(--myo);
+  }
+  .anatomy path[data-label='lv'] {
+    stroke: var(--lv);
+  }
+</style>

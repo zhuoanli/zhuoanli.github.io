@@ -1,0 +1,238 @@
+---
+import BaseLayout from '../layouts/BaseLayout.astro';
+import PageHeader from '../components/PageHeader.astro';
+import { cv } from '../data/cv';
+import { site } from '../data/site';
+import { copy } from '../data/copy';
+
+// A section with nothing in it is skipped, so a half-filled CV still reads as
+// a finished page rather than a form waiting to be completed.
+const sections = cv.filter((s) => (s.kind === 'timeline' ? s.entries.length > 0 : s.groups.length > 0));
+
+const externals = [
+  { label: 'GitHub', href: site.links.github },
+  { label: 'Google Scholar', href: site.links.scholar },
+  { label: 'ORCID', href: site.links.orcid },
+  { label: 'LinkedIn', href: site.links.linkedin },
+].filter((l) => l.href);
+
+// Only offer a download once an actual PDF is sitting in public/.
+const pdfHref = site.links.cv.endsWith('.pdf') ? site.links.cv : null;
+---
+
+<BaseLayout title="CV" description={`Curriculum vitae — ${site.name}`}>
+  <PageHeader eyebrow={copy.cv.eyebrow} title={copy.cv.title}>
+    <div class="identity" data-reveal="2">
+      <p class="meta">{[site.role, site.department, site.affiliation].filter(Boolean).join(' · ')}</p>
+      <p class="meta">{site.location}</p>
+      <p class="contact">
+        <a href={`mailto:${site.email}`}>{site.email}</a>
+        {
+          externals.map((l) => (
+            <>
+              <span class="dot" aria-hidden="true">·</span>
+              <a href={l.href}>{l.label}</a>
+            </>
+          ))
+        }
+      </p>
+    </div>
+
+    <div class="cluster tools no-print" data-reveal="3">
+      {
+        pdfHref && (
+          <a class="btn" href={pdfHref} data-gc="cv-download" data-gc-title="CV — PDF download">
+            {copy.cv.pdfLabel}
+          </a>
+        )
+      }
+      {/* Unhidden by the script below, so JS-off never shows a dead control. */}
+      <button
+        type="button"
+        class="btn"
+        data-print
+        data-gc="cv-print"
+        data-gc-title="CV — print / save as PDF"
+        hidden>{copy.cv.printLabel}</button>
+    </div>
+  </PageHeader>
+
+  <div class="wrap page-body">
+    {
+      sections.length === 0 ? (
+        <p class="empty">{copy.cv.empty}</p>
+      ) : (
+        sections.map((section) => (
+          <section class="cv-section" id={section.id}>
+            <h2 class="eyebrow">{section.label}</h2>
+
+            {section.kind === 'timeline' ? (
+              <ol class="entries">
+                {section.entries.map((entry) => (
+                  <li class="entry">
+                    <p class="num period">{entry.period}</p>
+                    <div class="detail">
+                      <p class="entry-title">{entry.title}</p>
+                      {(entry.org || entry.location) && (
+                        <p class="org">{[entry.org, entry.location].filter(Boolean).join(' · ')}</p>
+                      )}
+                      {entry.detail && <p class="note">{entry.detail}</p>}
+                      {entry.links && entry.links.length > 0 && (
+                        <p class="entry-links">
+                          {entry.links.map((l, i) => (
+                            <>
+                              {i > 0 && <span class="dot" aria-hidden="true">·</span>}
+                              <a href={l.href}>{l.label}</a>
+                            </>
+                          ))}
+                        </p>
+                      )}
+                    </div>
+                  </li>
+                ))}
+              </ol>
+            ) : (
+              <dl class="groups">
+                {section.groups.map((group) => (
+                  <div class="group">
+                    <dt>{group.label}</dt>
+                    <dd>{group.items.join(', ')}</dd>
+                  </div>
+                ))}
+              </dl>
+            )}
+          </section>
+        ))
+      )
+    }
+  </div>
+</BaseLayout>
+
+<style>
+  .identity {
+    margin-block-start: var(--sp-5);
+  }
+
+  .meta {
+    color: var(--ink-secondary);
+    font-size: var(--text-base);
+  }
+
+  .contact {
+    margin-block-start: var(--sp-2);
+    font-family: var(--font-mono);
+    font-size: var(--text-sm);
+    color: var(--ink-secondary);
+  }
+
+  .dot {
+    margin-inline: 0.5em;
+    color: var(--ink-faint);
+  }
+
+  .tools {
+    margin-block-start: var(--sp-5);
+  }
+
+  .page-body {
+    padding-block: var(--sp-7) var(--section-y);
+  }
+
+  .cv-section + .cv-section {
+    margin-block-start: var(--sp-8);
+  }
+
+  .entries {
+    list-style: none;
+    padding: 0;
+    margin-block-start: var(--sp-5);
+  }
+
+  .entry {
+    display: grid;
+    grid-template-columns: 11rem minmax(0, 1fr);
+    gap: var(--sp-5);
+    padding-block: var(--sp-4);
+    border-block-start: 1px solid var(--line);
+  }
+
+  .entry:first-child {
+    border-block-start: 0;
+    padding-block-start: 0;
+  }
+
+  .period {
+    font-size: var(--text-xs);
+    letter-spacing: var(--tracking-wide);
+    color: var(--ink-muted);
+    padding-block-start: 0.25em;
+  }
+
+  .entry-title {
+    color: var(--ink);
+    font-weight: 520;
+  }
+
+  .org {
+    color: var(--ink-secondary);
+    font-size: var(--text-base);
+  }
+
+  .note {
+    margin-block-start: var(--sp-2);
+    color: var(--ink-muted);
+    font-size: var(--text-sm);
+    max-width: 62ch;
+  }
+
+  .entry-links {
+    margin-block-start: var(--sp-2);
+    font-family: var(--font-mono);
+    font-size: var(--text-xs);
+  }
+
+  .groups {
+    margin-block-start: var(--sp-5);
+  }
+
+  .group {
+    display: grid;
+    grid-template-columns: 11rem minmax(0, 1fr);
+    gap: var(--sp-5);
+    padding-block: var(--sp-3);
+    border-block-start: 1px solid var(--line);
+  }
+
+  .group:first-child {
+    border-block-start: 0;
+    padding-block-start: 0;
+  }
+
+  .group dt {
+    font-family: var(--font-mono);
+    font-size: var(--text-xs);
+    letter-spacing: var(--tracking-wide);
+    color: var(--ink-muted);
+  }
+
+  .group dd {
+    margin: 0;
+    color: var(--ink-secondary);
+  }
+
+  @media (width < 40rem) {
+    .entry,
+    .group {
+      grid-template-columns: 1fr;
+      gap: var(--sp-2);
+    }
+  }
+</style>
+
+<script>
+  const btn = document.querySelector<HTMLButtonElement>('[data-print]');
+  if (btn) {
+    btn.hidden = false;
+    btn.addEventListener('click', () => window.print());
+  }
+</script>

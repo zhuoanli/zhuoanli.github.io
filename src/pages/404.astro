@@ -1,0 +1,63 @@
+---
+import BaseLayout from '../layouts/BaseLayout.astro';
+import ContourMark from '../components/ContourMark.astro';
+import { site } from '../data/site';
+import { copy } from '../data/copy';
+import { cine } from '../lib/contours';
+---
+
+<BaseLayout title="Not found" description={copy.notFound.lede}>
+  <section class="notfound glow">
+    {/* End-systole: the tightest frame in the cycle. A page that isn't here. */}
+    <ContourMark class="art" frame={cine.esIdx} weight={4} />
+
+    <div class="wrap inner">
+      <p class="eyebrow" data-reveal="0">{copy.notFound.eyebrow}</p>
+      <h1 data-reveal="1">{copy.notFound.title}</h1>
+      <p class="lede" data-reveal="2">{copy.notFound.lede}</p>
+
+      <ul class="chips routes" data-reveal="3">
+        <li><a class="chip" href="/">Home</a></li>
+        {site.nav.map((item) => <li><a class="chip" href={item.href}>{item.label}</a></li>)}
+      </ul>
+    </div>
+  </section>
+</BaseLayout>
+
+<style>
+  .notfound {
+    position: relative;
+    overflow: hidden;
+    display: grid;
+    align-content: center;
+    min-height: min(70vh, 34rem);
+    padding-block: var(--section-y);
+  }
+
+  .notfound :global(.art) {
+    position: absolute;
+    z-index: -1;
+    top: 50%;
+    right: clamp(-8rem, -4vw, -2rem);
+    width: min(22rem, 38vw);
+    transform: translateY(-50%);
+    pointer-events: none;
+  }
+
+  .inner {
+    max-width: 46rem;
+  }
+
+  h1 {
+    font-size: var(--text-3xl);
+    margin-block-start: var(--sp-4);
+  }
+
+  .lede {
+    margin-block-start: var(--sp-4);
+  }
+
+  .routes {
+    margin-block-start: var(--sp-6);
+  }
+</style>

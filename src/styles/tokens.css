@@ -42,18 +42,27 @@
   --sp-8: 4rem;
   --sp-9: 6rem;
   --sp-10: 8rem;
-  --section-y: clamp(4rem, 9vh, 7.5rem);
+  --section-y: clamp(3.5rem, 7vh, 6rem);
 
   /* ── Measure ──────────────────────────────────────────────────────────── */
   --measure: 68ch;
-  --page-max: 76rem;
-  --page-pad: clamp(1.25rem, 5vw, 3.5rem);
+  --page-max: 82rem;
+  --page-pad: clamp(1.25rem, 4vw, 3rem);
 
   /* ── Shape ────────────────────────────────────────────────────────────── */
   --radius-sm: 4px;
   --radius: 8px;
   --radius-lg: 14px;
+  --radius-xl: 22px;
   --radius-full: 999px;
+
+  /* ── Imaging ──────────────────────────────────────────────────────────── */
+  /* One cardiac cycle: 28 frames at 40ms. Every cine loop on the site runs on
+     this clock, so a page of them beats together instead of shimmering. */
+  --cine-frames: 28;
+  --cine-cols: 7;
+  --cine-rows: 4;
+  --cine-cycle: 1120ms;
 
   /* ── Motion ───────────────────────────────────────────────────────────── */
   --dur-fast: 120ms;
@@ -98,6 +107,27 @@
   /* The cine loop lives on black. In light mode it needs a frame to sit in. */
   --viewport-bg: #08090b;
   --viewport-ring: rgb(20 22 26 / 0.1);
+
+  /* ── Cards ──────────────────────────────────────────────────────────────
+     On paper a card is defined by its edge and a shadow that suggests it is
+     a physical sheet. Fill stays near-white so imaging inside it still reads
+     as a film on a lightbox. */
+  --card-bg: #ffffff;
+  --card-bg-hover: #ffffff;
+  --card-line: #e7e6e0;
+  --card-line-hover: #cfd8d6;
+  --card-shadow: 0 1px 2px rgb(20 22 26 / 0.04), 0 6px 18px -10px rgb(20 22 26 / 0.14);
+  --card-shadow-hover: 0 2px 6px rgb(20 22 26 / 0.05), 0 24px 48px -20px rgb(14 124 134 / 0.3);
+
+  /* Contour line-art used as page ornament. Deep enough to read on paper. */
+  --mark-stroke: rgb(14 124 134 / 0.16);
+  --mark-stroke-strong: rgb(14 124 134 / 0.32);
+
+  /* Washes behind imaging and headline sections. */
+  --halo: radial-gradient(60% 60% at 50% 40%, rgb(14 124 134 / 0.1), transparent 70%);
+  --grad-accent: linear-gradient(135deg, #0e7c86, #0f9d94);
+  --grad-band: linear-gradient(180deg, #f4f4f0, #fbfbf9);
+  --grad-veil: linear-gradient(180deg, transparent, rgb(20 22 26 / 0.55));
 }
 
 /* ── Dark: near-black with a blue cast, the colour of a reading-room monitor ── */
@@ -131,6 +161,25 @@
   --rv: #f0a944;
   --myo: #2dd4bf;
   --lv: #f4536b;
+
+  /* ── Cards ──────────────────────────────────────────────────────────────
+     In the dark there is no shadow to define an edge, so a card is defined by
+     being *lighter* than the field and by a hairline that catches the accent
+     on hover. Shadow still runs, to seat it rather than to lift it. */
+  --card-bg: #101317;
+  --card-bg-hover: #151a1f;
+  --card-line: #23272e;
+  --card-line-hover: #2f5f61;
+  --card-shadow: 0 1px 2px rgb(0 0 0 / 0.5), 0 8px 24px -12px rgb(0 0 0 / 0.8);
+  --card-shadow-hover: 0 2px 6px rgb(0 0 0 / 0.5), 0 28px 56px -24px rgb(61 219 217 / 0.28);
+
+  --mark-stroke: rgb(61 219 217 / 0.13);
+  --mark-stroke-strong: rgb(61 219 217 / 0.3);
+
+  --halo: radial-gradient(60% 60% at 50% 40%, rgb(61 219 217 / 0.14), transparent 70%);
+  --grad-accent: linear-gradient(135deg, #2dd4bf, #3ddbd9);
+  --grad-band: linear-gradient(180deg, #08090a, #0b0c0e);
+  --grad-veil: linear-gradient(180deg, transparent, rgb(0 0 0 / 0.75));
 
   color-scheme: dark;
 }

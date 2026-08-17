@@ -12,7 +12,11 @@ const link = z
     bibtex: z.string().optional(),
     project: z.string().optional(),
   })
-  .default({});
+  // `.nullish()` rather than `.default({})`: commenting out every sub-key
+  // leaves `links:` parsing as null, not as an absent key, and a default only
+  // fires on absent. Without this, commenting out your links breaks the build.
+  .nullish()
+  .transform((v) => v ?? {});
 
 const publications = defineCollection({
   loader: glob({ base: './src/content/publications', pattern: '**/*.md' }),
@@ -73,6 +77,32 @@ const projects = defineCollection({
     }),
 });
 
+/**
+ * Research themes. The narrative layer that sits above individual papers —
+ * `/research` renders the body prose, the home page renders `summary` only.
+ */
+const research = defineCollection({
+  loader: glob({ base: './src/content/research', pattern: '**/*.md' }),
+  schema: ({ image }) =>
+    z.object({
+      title: z.string(),
+      /**
+       * Must match an id in `site.capabilities`. The hero chips are anchor
+       * links to `#{id}`, so a mismatch here silently breaks those jumps.
+       */
+      id: z.string(),
+      /** One or two sentences. This is what the home page shows. */
+      summary: z.string(),
+      /** Lower sorts first. */
+      order: z.number().default(0),
+      figure: image().optional(),
+      figureAlt: z.string().optional(),
+      /** Publication ids (filename without .md), rendered as cross-links. */
+      pubs: z.array(z.string()).default([]),
+      draft: z.boolean().default(false),
+    }),
+});
+
 const news = defineCollection({
   loader: glob({ base: './src/content/news', pattern: '**/*.md' }),
   schema: z.object({
@@ -83,4 +113,4 @@ const news = defineCollection({
   }),
 });
 
-export const collections = { publications, projects, news };
+export const collections = { publications, projects, research, news };

@@ -1,0 +1,68 @@
+---
+/**
+ * The [PDF] [arXiv] [Code] pill row.
+ *
+ * Follows the same "only render what is filled in" rule as the footer, so a
+ * half-populated `links` object never leaves a dead button behind.
+ */
+interface Props {
+  links: Record<string, string | undefined>;
+  /** Keys to skip — the detail page excludes 'bibtex', which it renders itself. */
+  exclude?: string[];
+  /**
+   * Slug of the thing these links belong to. Used to name the analytics event,
+   * so the dashboard says `pdf:miua-4dseg` rather than a bare `pdf`.
+   */
+  context?: string;
+}
+
+const { links, exclude = ['bibtex'], context } = Astro.props;
+
+// Order matters: this is the order a reader wants them in.
+const LABELS: [string, string][] = [
+  ['pdf', 'PDF'],
+  ['arxiv', 'arXiv'],
+  ['doi', 'DOI'],
+  ['code', 'Code'],
+  ['slides', 'Slides'],
+  ['poster', 'Poster'],
+  ['project', 'Project'],
+  ['bibtex', 'BibTeX'],
+];
+
+const items = LABELS.filter(([key]) => !exclude.includes(key) && links?.[key]).map(
+  ([key, label]) => ({ key, label, href: links[key]! }),
+);
+
+const isExternal = (href: string) => /^https?:/.test(href);
+---
+
+{
+  items.length > 0 && (
+    <ul class="cluster links">
+      {items.map((item) => (
+        <li>
+          <a
+            class="btn btn-sm"
+            href={item.href}
+            target={isExternal(item.href) ? '_blank' : undefined}
+            rel={isExternal(item.href) ? 'noopener' : undefined}
+            data-gc={context ? `${item.key}:${context}` : item.key}
+            data-gc-title={`${item.label} — ${context ?? 'link'}`}
+          >
+            {item.label}
+          </a>
+        </li>
+      ))}
+    </ul>
+  )
+}
+
+<style>
+  .links {
+    gap: var(--sp-2);
+    list-style: none;
+    padding: 0;
+    margin: 0;
+  }
+</style>

@@ -1,0 +1,36 @@
+---
+/**
+ * The opening block on every inner page. Its only job is to make five
+ * different pages share one rhythm.
+ */
+interface Props {
+  eyebrow: string;
+  title: string;
+  lede?: string;
+}
+
+const { eyebrow, title, lede } = Astro.props;
+---
+
+<header class="page-header wrap">
+  <p class="eyebrow" data-reveal="0">{eyebrow}</p>
+  <h1 data-reveal="1">{title}</h1>
+  {lede && <p class="lede" data-reveal="2">{lede}</p>}
+  <slot />
+</header>
+
+<style>
+  .page-header {
+    padding-block: clamp(2.5rem, 6vh, 4.5rem) 0;
+  }
+
+  h1 {
+    font-size: var(--text-3xl);
+    margin-block-start: var(--sp-4);
+  }
+
+  .lede {
+    margin-block-start: var(--sp-4);
+    max-width: 54ch;
+  }
+</style>

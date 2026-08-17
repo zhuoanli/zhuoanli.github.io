@@ -1,0 +1,56 @@
+---
+/**
+ * GoatCounter, plus the handful of interactions worth counting beyond page
+ * views: which paper's PDF got opened, whether anyone saved the CV, which
+ * topics people filter for.
+ *
+ * Renders nothing at all unless a site code is configured AND this is a
+ * production build — an unconfigured analytics tag is worse than none, and a
+ * dev server should never write to the real numbers.
+ *
+ * Anything that wants to be counted carries `data-gc="<event-name>"`. One
+ * delegated listener handles the lot, so adding a new tracked control is an
+ * attribute, not a script.
+ */
+import { site } from '../data/site';
+
+const code = site.analytics.goatcounter.trim();
+const enabled = Boolean(code) && import.meta.env.PROD;
+const endpoint = `https://${code}.goatcounter.com/count`;
+---
+
+{
+  enabled && (
+    <>
+      <script data-goatcounter={endpoint} async src="https://gc.zgo.at/count.js" />
+
+      <script is:inline define:vars={{ endpoint }}>
+        (() => {
+          // GoatCounter skips localhost on its own; this is belt and braces for
+          // preview servers and deploy previews on other hosts.
+          const local = /^(localhost|127\.|0\.0\.0\.0|\[::1\])/.test(location.hostname);
+          if (local) return;
+
+          document.addEventListener('click', (e) => {
+            const el = e.target.closest?.('[data-gc]');
+            if (!el) return;
+
+            const path = el.dataset.gc;
+            if (!path) return;
+
+            const send = window.goatcounter?.count;
+            // count.js is async; if the click beats it, drop the event rather
+            // than queueing — a lost count is cheaper than a retry loop.
+            if (typeof send !== 'function') return;
+
+            send({
+              path,
+              title: el.dataset.gcTitle || path,
+              event: true,
+            });
+          });
+        })();
+      </script>
+    </>
+  )
+}

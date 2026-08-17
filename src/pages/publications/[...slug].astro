@@ -1,0 +1,223 @@
+---
+import { Image } from 'astro:assets';
+import { render } from 'astro:content';
+import BaseLayout from '../../layouts/BaseLayout.astro';
+import AuthorList from '../../components/AuthorList.astro';
+import StatusBadge from '../../components/StatusBadge.astro';
+import LinkRow from '../../components/LinkRow.astro';
+import BibtexBlock from '../../components/BibtexBlock.astro';
+import { getPublications, isRedacted, type Publication } from '../../lib/collections';
+import { hasEqualContribution } from '../../lib/authors';
+import { toBibtex } from '../../lib/bibtex';
+import { copy } from '../../data/copy';
+
+/**
+ * Redacted papers get no page at all — not an empty one, not a stub. A
+ * double-blind venue can find an unlinked URL as easily as a linked one.
+ */
+export async function getStaticPaths() {
+  const pubs = await getPublications();
+  return pubs
+    .filter((pub) => !isRedacted(pub))
+    .map((pub) => ({ params: { slug: pub.id }, props: { pub } }));
+}
+
+interface Props {
+  pub: Publication;
+}
+
+const { pub } = Astro.props;
+const { data } = pub;
+const { Content } = await render(pub);
+
+const bibtex = toBibtex(pub);
+const showEqualNote = hasEqualContribution(data.authors);
+---
+
+<BaseLayout title={data.title} description={data.tldr ?? `${data.venue} ${data.year}`}>
+  <article class="wrap-narrow page-body">
+    <a class="back no-print" href="/publications">← {copy.publication.backLabel}</a>
+
+    <p class="venue" data-reveal="0">
+      <span class="venue-name">{data.venueLong ?? data.venue}</span>
+      <span class="dot" aria-hidden="true">·</span>
+      <span class="num">{data.year}</span>
+      <StatusBadge status={data.status} />
+    </p>
+
+    <h1 data-reveal="1">{data.title}</h1>
+
+    {data.authors.length > 0 && <div data-reveal="2"><AuthorList authors={data.authors} /></div>}
+    {showEqualNote && <p class="footnote">{copy.publications.equalNote}</p>}
+
+    <div class="actions" data-reveal="3">
+      <LinkRow links={data.links} context={pub.id} />
+    </div>
+
+    {
+      data.figure && (
+        <figure class="figure" data-reveal="0">
+          <Image
+            src={data.figure}
+            alt={data.figureAlt ?? ''}
+            widths={[640, 960, 1280]}
+            sizes="(width < 58rem) 100vw, 54rem"
+          />
+          {data.figureAlt && <figcaption>{data.figureAlt}</figcaption>}
+        </figure>
+      )
+    }
+
+    {
+      data.tldr && (
+        <section class="block">
+          <h2 class="eyebrow">{copy.publication.tldrLabel}</h2>
+          <p class="lede tldr">{data.tldr}</p>
+        </section>
+      )
+    }
+
+    {
+      data.highlights.length > 0 && (
+        <section class="block">
+          <h2 class="eyebrow">{copy.publication.highlightsLabel}</h2>
+          <ul class="highlights">
+            {data.highlights.map((h) => (
+              <li>{h}</li>
+            ))}
+          </ul>
+        </section>
+      )
+    }
+
+    <div class="prose body">
+      <Content />
+    </div>
+
+    {
+      data.themes.length > 0 && (
+        <section class="block no-print">
+          <h2 class="eyebrow">{copy.publication.themesLabel}</h2>
+          <ul class="chips">
+            {data.themes.map((t) => (
+              <li>
+                <a class="chip" href="/publications">
+                  {t}
+                </a>
+              </li>
+            ))}
+          </ul>
+        </section>
+      )
+    }
+
+    <section class="block">
+      <h2 class="eyebrow">{copy.publication.citeLabel}</h2>
+      <BibtexBlock bibtex={bibtex} />
+    </section>
+  </article>
+</BaseLayout>
+
+<style>
+  .page-body {
+    padding-block: clamp(2rem, 5vh, 3.5rem) var(--section-y);
+  }
+
+  .back {
+    display: inline-block;
+    font-family: var(--font-mono);
+    font-size: var(--text-xs);
+    letter-spacing: var(--tracking-wide);
+    color: var(--ink-muted);
+    text-decoration: none;
+    margin-block-end: var(--sp-6);
+  }
+
+  .back:hover {
+    color: var(--accent);
+  }
+
+  .venue {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: var(--sp-3);
+    font-family: var(--font-mono);
+    font-size: var(--text-xs);
+    letter-spacing: var(--tracking-wide);
+    color: var(--ink-muted);
+  }
+
+  .venue-name {
+    color: var(--ink-secondary);
+  }
+
+  .dot {
+    margin-inline-end: var(--sp-1);
+    color: var(--ink-faint);
+  }
+
+  h1 {
+    font-size: var(--text-2xl);
+    margin-block: var(--sp-4) var(--sp-5);
+  }
+
+  .footnote {
+    margin-block-start: var(--sp-2);
+    font-size: var(--text-xs);
+    color: var(--ink-faint);
+  }
+
+  .actions {
+    margin-block-start: var(--sp-5);
+  }
+
+  .figure {
+    margin-block-start: var(--sp-7);
+    border: 1px solid var(--line);
+    border-radius: var(--radius-lg);
+    background: var(--bg-sunken);
+    overflow: hidden;
+  }
+
+  .figure :global(img) {
+    width: 100%;
+    height: auto;
+  }
+
+  .figure figcaption {
+    padding: var(--sp-3) var(--sp-4);
+    border-block-start: 1px solid var(--line);
+    font-size: var(--text-xs);
+    color: var(--ink-muted);
+  }
+
+  .block {
+    margin-block-start: var(--sp-8);
+  }
+
+  .block > :global(* + *),
+  .block .tldr,
+  .block .highlights,
+  .block .chips {
+    margin-block-start: var(--sp-4);
+  }
+
+  .tldr {
+    max-width: var(--measure);
+  }
+
+  .highlights {
+    max-width: var(--measure);
+    padding-inline-start: 1.1em;
+    color: var(--ink-secondary);
+  }
+
+  .highlights li + li {
+    margin-block-start: var(--sp-2);
+  }
+
+  .body {
+    margin-block-start: var(--sp-8);
+  }
+</style>

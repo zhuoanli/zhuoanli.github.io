@@ -1,0 +1,45 @@
+---
+/**
+ * Renders nothing for published work — the default state needs no label.
+ */
+interface Props {
+  status: 'published' | 'accepted' | 'under-review' | 'in-preparation';
+}
+
+const { status } = Astro.props;
+
+const LABEL = {
+  published: '',
+  accepted: 'Accepted',
+  'under-review': 'Under review',
+  'in-preparation': 'In preparation',
+} as const;
+---
+
+{status !== 'published' && <span class:list={['badge', status]}>{LABEL[status]}</span>}
+
+<style>
+  .badge {
+    display: inline-block;
+    padding: 0.15rem 0.5rem;
+    border: 1px solid currentColor;
+    border-radius: var(--radius-sm);
+    font-family: var(--font-mono);
+    font-size: 0.6875rem;
+    font-weight: 500;
+    letter-spacing: var(--tracking-wide);
+    text-transform: uppercase;
+    white-space: nowrap;
+    color: var(--ink-muted);
+    vertical-align: 0.15em;
+  }
+
+  .accepted {
+    color: var(--accent);
+  }
+
+  /* Deliberately the quietest of the three: it is a claim about the future. */
+  .in-preparation {
+    color: var(--ink-faint);
+  }
+</style>

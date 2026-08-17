@@ -34,7 +34,26 @@ export const site = {
     orcid: '', // TODO
     linkedin: '', // TODO
     twitter: '',
-    cv: '/cv.pdf', // TODO: drop the file at public/cv.pdf
+    // Points at the HTML CV, which always exists. Change this to '/cv.pdf'
+    // once you drop the file in public/ — the CV page shows a download button
+    // only when this ends in .pdf, so there is never a dead link.
+    cv: '/cv',
+  },
+
+  /**
+   * Visitor analytics. GoatCounter: no cookies, no personal data, no consent
+   * banner needed — it reports page views, referrers and countries, never who
+   * someone is.
+   *
+   * TODO: register a subdomain at goatcounter.com and put the code here, e.g.
+   * 'zhuoanli' for zhuoanli.goatcounter.com. While this is empty nothing is
+   * rendered at all, so there is no dead script and no failing request.
+   *
+   * It is also inert outside production builds, and GoatCounter itself ignores
+   * localhost, so local previews never pollute the numbers.
+   */
+  analytics: {
+    goatcounter: '',
   },
 
   /** Feeds both the nav chips and the anchor targets on the home page. */

@@ -1,8 +1,20 @@
 name: Deploy to GitHub Pages
 
 on:
-  push:
-    branches: [main]
+  # Publishing is manual on purpose while the repo is private and the content
+  # is still placeholder. Two things to know before flipping this on:
+  #
+  #   1. GitHub Pages cannot publish from a private repo on the free plan —
+  #      the configure-pages step below will fail. Pro or a public repo.
+  #   2. A private repo does not make a private site. Pages published from a
+  #      private repo is still publicly reachable; only Enterprise can put
+  #      access control in front of it.
+  #
+  # So: keep the repo private and leave this commented out. When the content is
+  # ready, make the repo public and uncomment.
+  #
+  # push:
+  #   branches: [master]
   workflow_dispatch:
 
 permissions:

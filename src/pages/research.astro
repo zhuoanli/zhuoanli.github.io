@@ -1,0 +1,194 @@
+---
+import { Image } from 'astro:assets';
+import { render } from 'astro:content';
+import BaseLayout from '../layouts/BaseLayout.astro';
+import PageHeader from '../components/PageHeader.astro';
+import PublicationCard from '../components/PublicationCard.astro';
+import CineLoop from '../components/CineLoop.astro';
+import { getPublications, getResearchThemes, resolvePubs } from '../lib/collections';
+import { cine } from '../lib/contours';
+import { copy } from '../data/copy';
+
+const themes = await getResearchThemes();
+const pubs = await getPublications();
+
+// Bodies are markdown, so each theme needs rendering before the template runs.
+const sections = await Promise.all(
+  themes.map(async (theme) => ({
+    theme,
+    Content: (await render(theme)).Content,
+    related: resolvePubs(pubs, theme.data.pubs),
+  })),
+);
+
+const frameFor = (i: number) => Math.round((i * cine.frames) / Math.max(sections.length, 1));
+---
+
+<BaseLayout title="Research" description={copy.research.lede}>
+  <PageHeader
+    eyebrow={copy.research.eyebrow}
+    title={copy.research.title}
+    lede={copy.research.lede}
+  />
+
+  <div class="wrap page-body">
+    {
+      sections.length === 0 ? (
+        <p class="empty">{copy.research.empty}</p>
+      ) : (
+        sections.map(({ theme, Content, related }, i) => (
+          /* The id must match site.capabilities — the hero chips link here. */
+          <section class="theme" id={theme.data.id} data-reveal={Math.min(i, 3)}>
+            <div class="head">
+              <p class="eyebrow">
+                <span class="num">{String(i + 1).padStart(2, '0')}</span>
+              </p>
+              <h2>{theme.data.title}</h2>
+              <p class="lede">{theme.data.summary}</p>
+            </div>
+
+            {/* Sticky, so the imaging stays alongside the argument it belongs to. */}
+            <div class="media">
+              <div class="media-inner">
+                {theme.data.figure ? (
+                  <Image
+                    src={theme.data.figure}
+                    alt={theme.data.figureAlt ?? ''}
+                    widths={[480, 960]}
+                    sizes="(width < 62rem) 100vw, 26rem"
+                    loading="lazy"
+                  />
+                ) : (
+                  <CineLoop
+                    alt={`${theme.data.title} — cardiac cine loop`}
+                    frame={frameFor(i)}
+                  />
+                )}
+              </div>
+            </div>
+
+            <div class="prose body">
+              <Content />
+            </div>
+
+            {related.length > 0 && (
+              <div class="related">
+                <p class="eyebrow">{copy.research.relatedLabel}</p>
+                <ol class="related-list">
+                  {related.map((pub) => (
+                    <li>
+                      <PublicationCard pub={pub} variant="compact" />
+                    </li>
+                  ))}
+                </ol>
+              </div>
+            )}
+          </section>
+        ))
+      )
+    }
+  </div>
+</BaseLayout>
+
+<style>
+  .page-body {
+    padding-block: var(--sp-7) var(--section-y);
+  }
+
+  .theme {
+    display: grid;
+    grid-template-columns: minmax(0, 1fr) minmax(0, 24rem);
+    grid-template-areas:
+      'head  media'
+      'body  media'
+      'rel   rel';
+    column-gap: clamp(2rem, 5vw, 4rem);
+    align-items: start;
+    /* Anchor jumps from the hero chips must clear the sticky header. */
+    scroll-margin-top: 6rem;
+  }
+
+  /* Alternating sides give a long page a rhythm instead of a single edge. */
+  .theme:nth-child(even) {
+    grid-template-columns: minmax(0, 24rem) minmax(0, 1fr);
+    grid-template-areas:
+      'media head'
+      'media body'
+      'rel   rel';
+  }
+
+  .theme + .theme {
+    margin-block-start: var(--sp-9);
+    padding-block-start: var(--sp-8);
+    border-block-start: 1px solid var(--line);
+  }
+
+  .head {
+    grid-area: head;
+  }
+
+  .head h2 {
+    margin-block-start: var(--sp-3);
+  }
+
+  .head .lede {
+    margin-block-start: var(--sp-4);
+  }
+
+  .media {
+    grid-area: media;
+  }
+
+  .media-inner {
+    position: sticky;
+    top: 6rem;
+    border: 1px solid var(--card-line);
+    border-radius: var(--radius-xl);
+    overflow: hidden;
+    background: var(--viewport-bg);
+    box-shadow: var(--card-shadow);
+  }
+
+  .media-inner :global(img) {
+    width: 100%;
+    height: auto;
+  }
+
+  .body {
+    grid-area: body;
+    margin-block-start: var(--sp-5);
+  }
+
+  .related {
+    grid-area: rel;
+    margin-block-start: var(--sp-6);
+    padding-block-start: var(--sp-4);
+    border-block-start: 1px solid var(--line);
+  }
+
+  .related-list {
+    list-style: none;
+    padding: 0;
+    margin-block-start: var(--sp-4);
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(min(100%, 22rem), 1fr));
+    gap: var(--sp-5) var(--sp-6);
+  }
+
+  @media (width < 62rem) {
+    .theme,
+    .theme:nth-child(even) {
+      grid-template-columns: 1fr;
+      grid-template-areas:
+        'head'
+        'media'
+        'body'
+        'rel';
+    }
+    .media-inner {
+      position: static;
+      margin-block-start: var(--sp-5);
+      max-width: 26rem;
+    }
+  }
+</style>

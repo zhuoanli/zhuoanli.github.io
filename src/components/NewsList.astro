@@ -1,0 +1,75 @@
+---
+import type { NewsItem } from '../lib/collections';
+
+interface Props {
+  items: NewsItem[];
+}
+
+const { items } = Astro.props;
+
+// UTC, deliberately: `2026-08-10` in frontmatter parses to UTC midnight, and
+// formatting it in a negative-offset timezone would render the day before.
+const fmt = new Intl.DateTimeFormat('en-US', {
+  year: 'numeric',
+  month: 'short',
+  day: 'numeric',
+  timeZone: 'UTC',
+});
+---
+
+<ol class="news">
+  {
+    items.map((item) => (
+      <li class:list={['item', { pinned: item.data.pinned }]}>
+        <time class="num date" datetime={item.data.date.toISOString().slice(0, 10)}>
+          {fmt.format(item.data.date)}
+        </time>
+        <p class="text">
+          {item.data.link ? <a href={item.data.link}>{item.data.text}</a> : item.data.text}
+        </p>
+      </li>
+    ))
+  }
+</ol>
+
+<style>
+  .news {
+    list-style: none;
+    padding: 0;
+    margin: 0;
+  }
+
+  .item {
+    display: grid;
+    grid-template-columns: 7.5rem minmax(0, 1fr);
+    gap: var(--sp-4);
+    padding-block: var(--sp-4);
+    border-block-start: 1px solid var(--line);
+  }
+
+  .date {
+    font-size: var(--text-xs);
+    letter-spacing: var(--tracking-wide);
+    color: var(--ink-muted);
+    padding-block-start: 0.2em;
+  }
+
+  /* A pinned item gets a rule in the accent colour rather than an icon —
+     quieter, and it survives print. */
+  .pinned {
+    border-block-start-color: var(--accent);
+  }
+
+  .text {
+    color: var(--ink-secondary);
+    font-size: var(--text-base);
+    max-width: 62ch;
+  }
+
+  @media (width < 34rem) {
+    .item {
+      grid-template-columns: 1fr;
+      gap: var(--sp-1);
+    }
+  }
+</style>

@@ -72,6 +72,13 @@ const path = Astro.url.pathname;
     border-bottom-color: var(--line);
   }
 
+  /* On a bleed page the hero owns the top of the viewport: the header sits on
+     it with no plate at all until the first scroll. */
+  .header.bleed:not([data-scrolled]) {
+    background: transparent;
+    backdrop-filter: none;
+  }
+
   .bar {
     display: flex;
     align-items: center;

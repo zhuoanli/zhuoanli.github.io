@@ -5,7 +5,7 @@ const fmt = (v: number, f: string) =>
   f === 'int' ? String(v) : f === 'dp2' ? v.toFixed(2) : v.toFixed(3);
 ---
 
-<section class="band" aria-label="Headline results">
+<section class="metrics glow" aria-label="Headline results">
   <div class="wrap row">
     {
       metrics.map((m, i) => (
@@ -23,9 +23,10 @@ const fmt = (v: number, f: string) =>
 </section>
 
 <style>
-  .band {
+  .metrics {
+    position: relative;
     border-block: 1px solid var(--line);
-    background: var(--bg-sunken);
+    background: var(--grad-band);
     padding-block: var(--sp-7);
   }
 
@@ -39,21 +40,28 @@ const fmt = (v: number, f: string) =>
     display: grid;
     gap: 0.2rem;
     align-content: start;
-    padding-inline-start: var(--sp-4);
-    border-inline-start: 1px solid var(--line);
+    padding-block-start: var(--sp-4);
+    /* A rule above rather than beside: it lets the numbers set the rhythm and
+       reads as a scale mark on an instrument. */
+    border-block-start: 2px solid var(--line-strong);
+  }
+
+  /* The first cell is the headline result, so its rule carries the accent. */
+  .cell:first-child {
+    border-block-start-color: var(--accent);
   }
 
   .value {
-    font-size: clamp(1.75rem, 3vw, 2.5rem);
+    font-size: clamp(2.25rem, 3.6vw, 3.25rem);
     font-weight: 300;
-    line-height: 1.05;
-    letter-spacing: -0.03em;
+    line-height: 1.02;
+    letter-spacing: -0.04em;
     color: var(--ink);
   }
 
   .unit {
-    font-size: 0.45em;
-    color: var(--ink-muted);
+    font-size: 0.4em;
+    color: var(--accent);
     margin-inline-start: 0.15em;
     letter-spacing: 0;
   }

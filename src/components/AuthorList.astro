@@ -1,0 +1,56 @@
+---
+/**
+ * Renders an author list with the site owner emphasised. See lib/authors.ts
+ * for the truncation rule — your own name is never the one that gets cut.
+ */
+import { formatAuthors } from '../lib/authors';
+
+interface Props {
+  authors: readonly string[];
+  /** Omit to show every author (detail pages); set on compact cards. */
+  max?: number;
+}
+
+const { authors, max } = Astro.props;
+const tokens = formatAuthors(authors, { max });
+---
+
+<p class="authors">
+  {
+    tokens.map((token, i) => (
+      <>
+        {i > 0 && token.kind !== 'gap' && <span class="sep">, </span>}
+        {token.kind === 'author' && (
+          <span class:list={['author', { me: token.isMe }]}>
+            {token.name}
+            {token.equal && <span class="star" aria-hidden="true">*</span>}
+          </span>
+        )}
+        {token.kind === 'gap' && <span class="sep"> … </span>}
+        {token.kind === 'etal' && <span class="etal">et al.</span>}
+      </>
+    ))
+  }
+</p>
+
+<style>
+  .authors {
+    font-size: var(--text-sm);
+    color: var(--ink-muted);
+    line-height: var(--leading-snug);
+  }
+
+  /* Your own name, so a reader scanning ten authors finds it without reading. */
+  .me {
+    color: var(--ink);
+    font-weight: 550;
+  }
+
+  .star {
+    color: var(--ink-faint);
+  }
+
+  .etal {
+    font-style: italic;
+  }
+</style>

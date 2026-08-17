@@ -1,0 +1,306 @@
+---
+/**
+ * The one place double-blind redaction is enforced.
+ *
+ * If `isRedacted()` is true this renders the title, venue and status and stops
+ * — no authors, no summary, no figure, no links, and the title is not a link
+ * because the detail route generates no page for it. Every path that shows a
+ * publication goes through here, so the policy cannot be bypassed by
+ * forgetting it on one page.
+ */
+import { Image } from 'astro:assets';
+import AuthorList from './AuthorList.astro';
+import StatusBadge from './StatusBadge.astro';
+import LinkRow from './LinkRow.astro';
+import ContourMark from './ContourMark.astro';
+import { isRedacted, type Publication } from '../lib/collections';
+import { cine } from '../lib/contours';
+import { copy } from '../data/copy';
+
+interface Props {
+  pub: Publication;
+  /**
+   * `card` — grid tile with a media slot, used on the home page.
+   * `full` — list row, used on /publications.
+   * `compact` — text only, used inside research themes.
+   */
+  variant?: 'card' | 'full' | 'compact';
+}
+
+const { pub, variant = 'full' } = Astro.props;
+const { data } = pub;
+
+const redacted = isRedacted(pub);
+const href = `/publications/${pub.id}/`;
+const isCard = variant === 'card';
+const isCompact = variant === 'compact';
+// Every list row carries a thumbnail — the real figure when there is one, the
+// segmentation outline when there is not. A column that is present for some
+// rows and absent for others is what made the old list look unfinished.
+const showThumb = !redacted && variant === 'full';
+
+// No figure yet? Fall back to the segmentation outline, at a frame derived
+// from the slug so no two tiles in a grid show the same shape.
+const markFrame =
+  [...pub.id].reduce((acc, ch) => (acc * 31 + ch.charCodeAt(0)) % cine.frames, 7);
+---
+
+{
+  isCard ? (
+    <article class:list={['card', 'pub-card', { 'is-redacted': redacted }]}>
+      {!redacted && (
+        <div class="card-media">
+          {data.figure ? (
+            <Image
+              src={data.figure}
+              alt={data.figureAlt ?? ''}
+              widths={[420, 840]}
+              sizes="(width < 60rem) 100vw, 22rem"
+              loading="lazy"
+            />
+          ) : (
+            <div class="mark-panel">
+              <ContourMark frame={markFrame} variant="anatomy" weight={7} />
+            </div>
+          )}
+        </div>
+      )}
+
+      <div class="card-body">
+        <p class="venue">
+          <span class="venue-name">{data.venue}</span>
+          <span class="dot" aria-hidden="true">·</span>
+          <span class="num">{data.year}</span>
+          <StatusBadge status={data.status} />
+        </p>
+
+        <h3 class="title">
+          {redacted ? <span>{data.title}</span> : <a class="card-link" href={href}>{data.title}</a>}
+        </h3>
+
+        {redacted ? (
+          <p class="redacted">{copy.publications.redactedNote}</p>
+        ) : (
+          <>
+            {data.authors.length > 0 && <AuthorList authors={data.authors} max={3} />}
+            {data.tldr && <p class="tldr">{data.tldr}</p>}
+          </>
+        )}
+      </div>
+    </article>
+  ) : (
+    <article class:list={['pub', { 'has-thumb': showThumb }]}>
+      {showThumb && (
+        <a class="thumb" href={href} tabindex="-1" aria-hidden="true">
+          {data.figure ? (
+            <Image src={data.figure} alt="" widths={[240, 480]} sizes="10rem" loading="lazy" />
+          ) : (
+            <span class="mark-panel">
+              <ContourMark frame={markFrame} variant="anatomy" weight={9} />
+            </span>
+          )}
+        </a>
+      )}
+
+      <div class="body">
+        <h3 class="title row-title">
+          {redacted ? <span>{data.title}</span> : <a href={href}>{data.title}</a>}
+          <StatusBadge status={data.status} />
+        </h3>
+
+        {!redacted && data.authors.length > 0 && (
+          <AuthorList authors={data.authors} max={isCompact ? 3 : 8} />
+        )}
+
+        <p class="venue">
+          <span class="venue-name">{data.venue}</span>
+          <span class="dot" aria-hidden="true">·</span>
+          <span class="num">{data.year}</span>
+        </p>
+
+        {redacted ? (
+          <p class="redacted">{copy.publications.redactedNote}</p>
+        ) : (
+          <>
+            {data.tldr && <p class="tldr">{data.tldr}</p>}
+            {!isCompact && <LinkRow links={data.links} context={pub.id} />}
+          </>
+        )}
+      </div>
+    </article>
+  )
+}
+
+<style>
+  /* ── Card variant ───────────────────────────────────────────────────── */
+
+  .pub-card .card-media {
+    aspect-ratio: 16 / 10;
+    overflow: hidden;
+  }
+
+  .pub-card .card-media :global(img) {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    transition: transform var(--dur-slow) var(--ease-out);
+  }
+
+  .pub-card:hover .card-media :global(img) {
+    transform: scale(1.04);
+  }
+
+  /* Stand-in for a paper with no figure yet: the segmentation itself, drawn on
+     the viewport black with the image removed. It reads as a label map — which
+     is exactly what it is — rather than as a picture that failed to load. */
+  .mark-panel {
+    display: grid;
+    place-items: center;
+    height: 100%;
+    padding: var(--sp-4);
+    background:
+      radial-gradient(70% 70% at 50% 45%, rgb(61 219 217 / 0.09), transparent 72%),
+      var(--viewport-bg);
+  }
+
+  /* The cropped mark is portrait (415x634), so it is sized by height —
+     constraining width would overflow the panel vertically. */
+  .mark-panel :global(.mark) {
+    width: auto;
+    height: 84%;
+    max-width: 80%;
+    opacity: 0.85;
+    filter: drop-shadow(0 0 6px rgb(0 0 0 / 0.6));
+    transition: transform var(--dur-slow) var(--ease-out), opacity var(--dur) var(--ease);
+  }
+
+  .pub-card:hover .mark-panel :global(.mark) {
+    opacity: 1;
+    transform: scale(1.04);
+  }
+
+  /* A withheld entry gets no media and a dashed edge — visibly a placeholder
+     held back on purpose, not a card that failed to load. */
+  .is-redacted {
+    border-style: dashed;
+    box-shadow: none;
+  }
+
+  .is-redacted:hover {
+    transform: none;
+    box-shadow: none;
+    border-color: var(--card-line);
+  }
+
+  .pub-card .title {
+    font-size: var(--text-lg);
+    line-height: var(--leading-snug);
+  }
+
+  .pub-card .title a {
+    text-decoration: none;
+  }
+
+  .pub-card:hover .title a {
+    color: var(--accent);
+  }
+
+  /* ── Row variants ───────────────────────────────────────────────────── */
+
+  .pub {
+    display: grid;
+    gap: var(--sp-2);
+  }
+
+  .has-thumb {
+    grid-template-columns: 10rem minmax(0, 1fr);
+    column-gap: var(--sp-5);
+    align-items: start;
+  }
+
+  .has-thumb .body {
+    display: grid;
+    gap: var(--sp-2);
+  }
+
+  .thumb {
+    display: block;
+    overflow: hidden;
+    border: 1px solid var(--line);
+    border-radius: var(--radius);
+    background: var(--bg-sunken);
+    aspect-ratio: 4 / 3;
+  }
+
+  .thumb :global(img) {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    transition: transform var(--dur-slow) var(--ease-out);
+  }
+
+  .pub:hover .thumb :global(img) {
+    transform: scale(1.03);
+  }
+
+  .row-title {
+    font-size: var(--text-lg);
+    line-height: var(--leading-snug);
+    display: flex;
+    flex-wrap: wrap;
+    align-items: baseline;
+    gap: var(--sp-3);
+  }
+
+  .row-title a {
+    text-decoration: none;
+  }
+
+  .row-title a:hover {
+    color: var(--accent);
+  }
+
+  /* ── Shared ─────────────────────────────────────────────────────────── */
+
+  .venue {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: var(--sp-2);
+    font-family: var(--font-mono);
+    font-size: var(--text-xs);
+    letter-spacing: var(--tracking-wide);
+    color: var(--ink-muted);
+  }
+
+  .venue-name {
+    color: var(--ink-secondary);
+  }
+
+  .dot {
+    color: var(--ink-faint);
+  }
+
+  .tldr {
+    color: var(--ink-secondary);
+    font-size: var(--text-base);
+    max-width: 62ch;
+  }
+
+  /* Reads as a deliberate withholding, not as missing data. */
+  .redacted {
+    font-size: var(--text-sm);
+    font-style: italic;
+    color: var(--ink-faint);
+    max-width: 62ch;
+  }
+
+  @media (width < 34rem) {
+    .has-thumb {
+      grid-template-columns: 1fr;
+    }
+    .thumb {
+      max-width: 12rem;
+    }
+  }
+</style>
