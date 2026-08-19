@@ -5,8 +5,12 @@ import MetricBand from '../components/MetricBand.astro';
 import PublicationCard from '../components/PublicationCard.astro';
 import NewsList from '../components/NewsList.astro';
 import CineLoop from '../components/CineLoop.astro';
-import ContourMark from '../components/ContourMark.astro';
+import CatMark from '../components/CatMark.astro';
+import ContactForm from '../components/ContactForm.astro';
+import Avatar from '../components/Avatar.astro';
+import ProfileLinks from '../components/ProfileLinks.astro';
 import { getFeaturedPublications, getNews, getResearchThemes } from '../lib/collections';
+import { getProfiles } from '../lib/profiles';
 import { cine } from '../lib/contours';
 import { site } from '../data/site';
 import { copy } from '../data/copy';
@@ -15,12 +19,10 @@ const featured = await getFeaturedPublications(3);
 const themes = await getResearchThemes();
 const news = await getNews(5);
 
-const externals = [
-  { label: 'GitHub', href: site.links.github },
-  { label: 'Google Scholar', href: site.links.scholar },
-  { label: 'ORCID', href: site.links.orcid },
-  { label: 'LinkedIn', href: site.links.linkedin },
-].filter((l) => l.href);
+// The contact card is a short call to action, not a directory: dblp and ORCID
+// are indexes, not places anyone clicks from here. Both stay in the rail, the
+// footer, the CV and the structured data.
+const externals = getProfiles(['dblp', 'orcid']);
 
 /**
  * A capability chip anchors to its theme card on this page — but only if that
@@ -40,10 +42,16 @@ const frameFor = (i: number) => Math.round((i * cine.frames) / Math.max(themes.l
 
 <BaseLayout bleed>
   {/* ── Hero ──────────────────────────────────────────────────────────── */}
-  <section class="hero glow">
-    <ContourMark class="watermark" frame={cine.esIdx} weight={4} />
-
+  <section class="hero">
     <div class="wrap grid">
+      {/* Identity rail: a face and the profiles, above the fold, because that
+          is the first thing anyone hiring actually looks for. It deliberately
+          does not repeat the name — the h1 is right beside it. */}
+      <aside class="rail" data-reveal="1">
+        <Avatar />
+        <ProfileLinks />
+      </aside>
+
       <div class="intro">
         <p class="eyebrow" data-reveal="0">
           {[site.role, site.affiliation].filter(Boolean).join(' · ')}
@@ -59,7 +67,9 @@ const frameFor = (i: number) => Math.round((i * cine.frames) / Math.max(themes.l
 
         <div class="cluster" data-reveal="5">
           <a class="btn btn-primary" href="/publications">Publications</a>
-          <a class="btn" href={`mailto:${site.email}`}>Get in touch</a>
+          {/* Scrolls to the contact card rather than firing a mail client at
+              someone who has not decided to write yet. */}
+          <a class="btn" href="#contact">Get in touch</a>
         </div>
       </div>
 
@@ -149,13 +159,18 @@ const frameFor = (i: number) => Math.round((i * cine.frames) / Math.max(themes.l
       {news.length === 0 ? <p class="empty">{copy.home.news.empty}</p> : <NewsList items={news} />}
     </div>
 
-    <aside class="contact card glow" aria-labelledby="h-contact">
-      <ContourMark class="contact-mark" frame={cine.edIdx} weight={5} />
+    <aside class="contact card" id="contact" aria-labelledby="h-contact">
+      <CatMark class="contact-cat" />
       <div class="contact-body">
         <p class="eyebrow">{copy.home.contact.eyebrow}</p>
         <h2 id="h-contact">{copy.home.contact.title}</h2>
         <p class="contact-lede">{copy.home.contact.lede}</p>
-        <a class="btn btn-primary" href={`mailto:${site.email}`}>{site.email}</a>
+        {/* Writing a message needs no mail client, so it leads; the address
+            stays beside it for anyone who would rather copy it. */}
+        <div class="cluster">
+          <ContactForm />
+          <a class="btn" href={`mailto:${site.email}`}>{site.email}</a>
+        </div>
         {
           externals.length > 0 && (
             <ul class="chips">
@@ -183,26 +198,36 @@ const frameFor = (i: number) => Math.round((i * cine.frames) / Math.max(themes.l
     overflow: hidden;
   }
 
-  /* The segmentation outline, blown up and bled off the left edge. It is the
-     same polygon the hero canvas draws — the ornament is the data.
 
-     `:global` is required: a child component's root element carries only its
-     own scope id, so a bare `.watermark` here would never match the <svg>. */
-  .hero :global(.watermark) {
-    position: absolute;
-    z-index: -1;
-    top: 50%;
-    left: clamp(-22rem, -16vw, -10rem);
-    width: min(30rem, 46vw);
-    transform: translateY(-50%);
-    pointer-events: none;
-  }
+  /* Rail, intro, cine. The rail is fixed-width so the two content columns
+     absorb the page's flex rather than the photo growing with it.
 
+     ── The cine's size lives here ──────────────────────────────────────────
+     The third value is the cine column. Lower it to shrink the loop, raise it
+     to grow it — 0.86fr is roughly 15% smaller than the intro column beside
+     it. Nothing else needs touching; the canvas and the contour overlay both
+     scale off this width. */
   .grid {
     display: grid;
-    grid-template-columns: minmax(0, 1fr) minmax(0, 1.02fr);
-    gap: clamp(2rem, 5vw, 4.5rem);
+    /* First value is the rail: wide enough that the longest label holds one
+       line, because a city/state/country wrapping mid-address reads as an
+       accident rather than a choice. */
+    grid-template-columns: 12.75rem minmax(0, 1fr) minmax(0, 0.75fr);
+    gap: clamp(1.5rem, 3vw, 2.75rem) clamp(1.75rem, 3vw, 3rem);
     align-items: center;
+  }
+
+  /* Rail and intro share a top edge so the photo lines up with the eyebrow.
+     The cine stays centred — it is taller than both and centring keeps the
+     row balanced. */
+  .rail,
+  .intro {
+    align-self: start;
+  }
+
+  .rail {
+    display: grid;
+    gap: var(--sp-5);
   }
 
   .intro > * + * {
@@ -321,23 +346,23 @@ const frameFor = (i: number) => Math.round((i * cine.frames) / Math.max(themes.l
   .contact {
     position: relative;
     overflow: hidden;
+    /* The hero button jumps here; clear the sticky header. */
+    scroll-margin-top: 6rem;
   }
 
   .contact:hover {
     transform: none;
   }
 
-  /* Sized by height against the card, not by width: the cropped mark is
-     portrait, and a width-based size makes it so tall that only a stray
-     diagonal sliver survives the corner crop. */
-  .contact :global(.contact-mark) {
+  /* Sits fully inside the corner rather than bleeding off it — this one is a
+     small piece of character, and cropping a cat in half reads as a mistake.
+     `:global` because it is a child component's root element. */
+  .contact :global(.contact-cat) {
     position: absolute;
     z-index: 0;
-    right: -2.5rem;
-    bottom: -3rem;
-    width: auto;
-    height: 125%;
-    opacity: 0.7;
+    top: var(--sp-4);
+    right: var(--sp-4);
+    width: 3.75rem;
     pointer-events: none;
   }
 
@@ -353,6 +378,22 @@ const frameFor = (i: number) => Math.round((i * cine.frames) / Math.max(themes.l
   .contact-lede {
     color: var(--ink-secondary);
     font-size: var(--text-base);
+  }
+
+  /* Between the two breakpoints the rail would squeeze the headline, so it
+     moves above the text and lies down: photo beside links, not under them. */
+  @media (width < 72rem) {
+    .grid {
+      grid-template-columns: minmax(0, 1fr) minmax(0, 1.02fr);
+    }
+    .rail {
+      grid-column: 1 / -1;
+      grid-auto-flow: column;
+      grid-template-columns: 7.5rem minmax(0, 1fr);
+      align-items: center;
+      gap: var(--sp-5);
+      justify-content: start;
+    }
   }
 
   @media (width < 60rem) {

@@ -1,0 +1,74 @@
+---
+/**
+ * The dblp mark: two folded ribbons crossing.
+ *
+ * Inlined rather than loaded as an image so it can sit in the link flow and
+ * scale with the type. The folds and the crossing are drawn as explicit
+ * clipped fills rather than stacked transparency — blend modes render
+ * differently across browsers, and a translucent overlap would also pick up
+ * whatever the card behind it happens to be.
+ *
+ * Every id is prefixed: `blue-back` and friends are generic enough to collide
+ * with anything else on the page, and a clobbered clip-path fails silently.
+ */
+interface Props {
+  class?: string;
+}
+
+const { class: className } = Astro.props;
+---
+
+<svg
+  class:list={['dblp', className]}
+  viewBox="0 0 117 138"
+  role="img"
+  aria-label="dblp"
+>
+  <defs>
+    <path
+      id="dblp-blue-back"
+      d="M17.4 7.4 54.7 29.8q1.7 1 2.2 2.9l13.3 46.5q1.1 3.8-2.5 1.9L31.5 60.5q-2.1-1.2-2.7-3.5L16 9.2q-.5-2 1.4-1.8Z"
+    ></path>
+    <path
+      id="dblp-blue-front"
+      d="M18.2 48.8 53.8 34.5q4-1.6 5.1 2.5l11.3 41.4q1 3.5-2.3 5.1l-36.5 18.1q-3.6 1.7-4.6-2.1L15.2 55q-1-4 3-6.2Z"
+    ></path>
+    <path
+      id="dblp-yellow-back"
+      d="M91.9 32.2 55.6 49.1q-3.5 1.6-2.4 5.2l11.9 44.3q1 3.8 4.5 2.2l36.5-17.1q3.3-1.5 2.3-5L97 34.9q-1-3.9-5.1-2.7Z"
+    ></path>
+    <path
+      id="dblp-yellow-front"
+      d="M55.2 49.7 94.5 78.8q1.4 1 1.9 2.8l10.7 43.8q.7 2.8-1.7 1.2L67.5 103q-1.7-1-2.2-2.9L53 52.5q-.7-2.9 2.2-2.8Z"
+    ></path>
+    <clipPath id="dblp-clip-blue-back"><use href="#dblp-blue-back"></use></clipPath>
+    <clipPath id="dblp-clip-yellow-back"><use href="#dblp-yellow-back"></use></clipPath>
+    <clipPath id="dblp-clip-blue-all">
+      <use href="#dblp-blue-back"></use>
+      <use href="#dblp-blue-front"></use>
+    </clipPath>
+  </defs>
+
+  <use href="#dblp-blue-back" fill="#2581C4"></use>
+  <use href="#dblp-blue-front" fill="#2581C4"></use>
+  <use href="#dblp-blue-front" fill="#004F9F" clip-path="url(#dblp-clip-blue-back)"></use>
+
+  <use href="#dblp-yellow-back" fill="#FFD500"></use>
+  <use href="#dblp-yellow-front" fill="#FFD500"></use>
+  <use href="#dblp-yellow-front" fill="#FBBA00" clip-path="url(#dblp-clip-yellow-back)"></use>
+
+  <g clip-path="url(#dblp-clip-blue-all)">
+    <use href="#dblp-yellow-back" fill="#275A29"></use>
+    <use href="#dblp-yellow-front" fill="#426829"></use>
+  </g>
+</svg>
+
+<style>
+  /* Taller than wide (117x138), so it is sized by height to sit on the same
+     optical line as the square marks around it. */
+  .dblp {
+    display: block;
+    height: 1.1rem;
+    width: auto;
+  }
+</style>

@@ -1,0 +1,208 @@
+---
+import BaseLayout from '../layouts/BaseLayout.astro';
+import PageHeader from '../components/PageHeader.astro';
+import Avatar from '../components/Avatar.astro';
+import ProfileLinks from '../components/ProfileLinks.astro';
+import ContourMark from '../components/ContourMark.astro';
+import { cv } from '../data/cv';
+import { site } from '../data/site';
+import { copy } from '../data/copy';
+import { cine } from '../lib/contours';
+
+// The CV page already renders education from structured data; reuse the same
+// section rather than keeping a second copy of the facts here.
+const education = cv.find((s) => s.id === 'education');
+const eduEntries = education?.kind === 'timeline' ? education.entries : [];
+
+const affiliation = [site.department, site.affiliation].filter(Boolean).join(', ');
+---
+
+<BaseLayout title="About" description={copy.about.bio[0]}>
+  <PageHeader eyebrow={copy.about.eyebrow} title={copy.about.title} />
+
+  <div class="wrap page-body">
+    <aside class="rail" data-reveal="0">
+      <Avatar />
+      <div class="ident">
+        <p class="name">{site.name}</p>
+        <p class="role">{[site.role, affiliation].filter(Boolean).join(' · ')}</p>
+      </div>
+      <ProfileLinks />
+    </aside>
+
+    <div class="body">
+      <div class="prose" data-reveal="1">
+        {copy.about.bio.map((para) => <p>{para}</p>)}
+      </div>
+
+      {
+        eduEntries.length > 0 && (
+          <section class="block" data-reveal="2">
+            <h2 class="eyebrow">{copy.about.educationLabel}</h2>
+            <ol class="entries">
+              {eduEntries.map((entry) => (
+                <li>
+                  <p class="num period">{entry.period}</p>
+                  <div>
+                    <p class="entry-title">{entry.title}</p>
+                    {(entry.org || entry.location) && (
+                      <p class="org">{[entry.org, entry.location].filter(Boolean).join(' · ')}</p>
+                    )}
+                  </div>
+                </li>
+              ))}
+            </ol>
+          </section>
+        )
+      }
+
+      <section class="block interests glow" data-reveal="3">
+        <ContourMark class="interests-mark" frame={cine.esIdx} weight={6} />
+        <div class="interests-body">
+          <h2 class="eyebrow">{copy.about.interests.eyebrow}</h2>
+          <p class="lede">{copy.about.interests.lede}</p>
+          {
+            copy.about.interests.items.length > 0 && (
+              <ul class="chips">
+                {copy.about.interests.items.map((item) => (
+                  <li>
+                    <span class="chip">{item}</span>
+                  </li>
+                ))}
+              </ul>
+            )
+          }
+        </div>
+      </section>
+    </div>
+  </div>
+</BaseLayout>
+
+<style>
+  .page-body {
+    display: grid;
+    grid-template-columns: 15rem minmax(0, 1fr);
+    gap: clamp(2rem, 5vw, 4rem);
+    align-items: start;
+    padding-block: var(--sp-7) var(--section-y);
+  }
+
+  .rail {
+    display: grid;
+    gap: var(--sp-5);
+    position: sticky;
+    top: 6rem;
+  }
+
+  .ident {
+    display: grid;
+    gap: var(--sp-1);
+  }
+
+  .name {
+    font-family: var(--font-display);
+    font-size: var(--text-xl);
+    line-height: var(--leading-snug);
+  }
+
+  .role {
+    font-size: var(--text-sm);
+    color: var(--ink-muted);
+  }
+
+  .body > * + * {
+    margin-block-start: var(--sp-8);
+  }
+
+  .prose > * + * {
+    margin-block-start: var(--sp-4);
+  }
+
+  .block > * + * {
+    margin-block-start: var(--sp-4);
+  }
+
+  .entries {
+    list-style: none;
+    padding: 0;
+  }
+
+  .entries li {
+    display: grid;
+    grid-template-columns: 10rem minmax(0, 1fr);
+    gap: var(--sp-4);
+    padding-block: var(--sp-4);
+    border-block-start: 1px solid var(--line);
+  }
+
+  .entries li:first-child {
+    border-block-start: 0;
+    padding-block-start: 0;
+  }
+
+  .period {
+    font-size: var(--text-xs);
+    letter-spacing: var(--tracking-wide);
+    color: var(--ink-muted);
+    padding-block-start: 0.25em;
+  }
+
+  .entry-title {
+    font-weight: 520;
+  }
+
+  .org {
+    color: var(--ink-secondary);
+    font-size: var(--text-base);
+  }
+
+  .interests {
+    position: relative;
+    overflow: hidden;
+    border: 1px solid var(--card-line);
+    border-radius: var(--radius-xl);
+    background: var(--card-bg);
+  }
+
+  .interests :global(.interests-mark) {
+    position: absolute;
+    z-index: 0;
+    right: -3rem;
+    bottom: -3.5rem;
+    width: auto;
+    height: 150%;
+    opacity: 0.6;
+    pointer-events: none;
+  }
+
+  .interests-body {
+    position: relative;
+    z-index: 1;
+    display: grid;
+    gap: var(--sp-4);
+    padding: var(--sp-6);
+  }
+
+  @media (width < 56rem) {
+    .page-body {
+      grid-template-columns: 1fr;
+    }
+    .rail {
+      position: static;
+      grid-template-columns: 8rem minmax(0, 1fr);
+      grid-template-areas:
+        'photo ident'
+        'links links';
+      align-items: center;
+    }
+    .rail > :global(.avatar) {
+      grid-area: photo;
+    }
+    .ident {
+      grid-area: ident;
+    }
+    .rail > :global(.links) {
+      grid-area: links;
+    }
+  }
+</style>

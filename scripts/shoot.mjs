@@ -19,8 +19,10 @@ const ROUTES = [
   ['/research', 'research'],
   ['/publications', 'publications'],
   ['/publications/miua-4dseg', 'publication-detail'],
-  ['/projects', 'projects'],
+  ['/about', 'about'],
   ['/cv', 'cv'],
+  // Built and working, just not in the nav until there is something in it.
+  ['/projects', 'projects'],
   ['/this-route-does-not-exist', '404'],
 ];
 

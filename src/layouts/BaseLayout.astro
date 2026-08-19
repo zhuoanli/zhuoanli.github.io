@@ -22,7 +22,10 @@ const {
   bleed = false,
 } = Astro.props;
 
-const pageTitle = title ? `${title} — ${site.name}` : `${site.name} — ${site.tagline}`;
+// The home tab is just the name: a browser tab is narrow, and the tagline was
+// always the half that got truncated. Inner pages keep the suffix so an open
+// tab still says whose site it is.
+const pageTitle = title ? `${title} — ${site.name}` : site.name;
 const canonical = new URL(Astro.url.pathname, Astro.site);
 
 // schema.org Person, so a search for the name surfaces the right human with the

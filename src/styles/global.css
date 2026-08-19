@@ -414,6 +414,11 @@ button.chip:hover {
 
 .glow {
   position: relative;
+  /* The halo below is inset negatively so it bleeds past its box. Without a
+     clip here that overhang widens the document and the whole page scrolls
+     sideways. `clip` rather than `hidden`: it contains the wash without
+     turning every glowing section into a scroll container. */
+  overflow: clip;
 }
 
 .glow::before {

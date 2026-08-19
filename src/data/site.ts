@@ -11,7 +11,7 @@ export const site = {
   nameCn: '',
 
   /** One line. It sits under your name in the hero and nowhere else. */
-  tagline: 'Foundation models for cardiac imaging',
+  tagline: 'AI for medical imaging',
 
   /**
    * The positioning statement. Two sentences, declarative, no adjectives doing
@@ -24,15 +24,26 @@ export const site = {
   affiliation: 'Purdue University', // TODO: confirm department / lab
   department: '', // TODO
   advisor: '', // TODO — rendered on /cv only if set
-  location: 'West Lafayette, IN',
+  location: 'West Lafayette, IN, USA', // TODO: confirm city, state, country
   email: 'zhuoanli07@gmail.com',
+
+  /**
+   * Profile photo. Empty renders the placeholder SVG instead, so the page
+   * never shows a broken image. Lives in public/ rather than src/assets/ on
+   * purpose: a missing file under src/assets/ fails the build outright.
+   *
+   * This is a URL path, not a file path: everything in public/ is served from
+   * the site root, so public/avatar.jpg is '/avatar.jpg'.
+   */
+  photo: '/avatar.jpg',
 
   /** Links render only when non-empty, so blanks are safe to leave. */
   links: {
     github: 'https://github.com/zhuoanli',
-    scholar: '', // TODO
-    orcid: '', // TODO
-    linkedin: '', // TODO
+    scholar: 'https://scholar.google.com/citations?user=dH-y8OMAAAAJ&hl=en',
+    orcid: 'https://orcid.org/0009-0005-0647-8579',
+    dblp: 'https://dblp.org/pid/309/2988.html',
+    linkedin: 'https://www.linkedin.com/in/zhuoan-li-lza1207/',
     twitter: '',
     // Points at the HTML CV, which always exists. Change this to '/cv.pdf'
     // once you drop the file in public/ — the CV page shows a download button
@@ -53,7 +64,30 @@ export const site = {
    * localhost, so local previews never pollute the numbers.
    */
   analytics: {
-    goatcounter: '',
+    goatcounter: 'zhuoanli',
+  },
+
+  /**
+   * The message box on the home page.
+   *
+   * GitHub Pages serves static files and nothing else, so a form cannot send
+   * mail on its own — it has to POST to a service that forwards it. Until
+   * `endpoint` is set the form still works: it falls back to opening the
+   * reader's mail client with the subject and their message pre-filled, which
+   * needs no account and no third party.
+   *
+   * The access key is public by design — it appears in the page source, and
+   * all it can do is deliver mail to the address it was registered against.
+   * It grants no read access to anything, so it is not a secret to protect.
+   *
+   * Formspree works too: put its form URL in `endpoint` and leave `accessKey`
+   * empty. Either way the mail lands in whichever inbox you registered.
+   */
+  contactForm: {
+    endpoint: 'https://api.web3forms.com/submit',
+    accessKey: '94b48322-1b01-4a71-8bba-1806f857cf2f',
+    /** Prefixes the subject line so these are filterable in your inbox. */
+    subject: 'Personal website message',
   },
 
   /** Feeds both the nav chips and the anchor targets on the home page. */
@@ -64,10 +98,15 @@ export const site = {
     { id: 'scale', label: 'Large-scale training' },
   ],
 
+  /**
+   * Projects is built and working but deliberately out of the nav for now —
+   * there is nothing real in it yet. Add the entry back to restore it; the
+   * route, the collection and the page all still exist.
+   */
   nav: [
     { href: '/research', label: 'Research' },
     { href: '/publications', label: 'Publications' },
-    { href: '/projects', label: 'Projects' },
+    { href: '/about', label: 'About me' },
     { href: '/cv', label: 'CV' },
   ],
 } as const;
@@ -79,12 +118,11 @@ export const site = {
 export const hero = {
   media: {
     cine: '/media/hero-cine.webp',
-    overlay: '/media/hero-overlay.webp',
     poster: '/media/hero-poster.webp',
   },
   caption: 'Short-axis cine MRI, one cardiac cycle',
   provenance:
-    'ACDC patient 022 (HCM). Contours are MedSAM2 output under dual-anchored bidirectional propagation — zero-shot, no cardiac-specific training.',
+    'ACDC patient 022 (HCM). Contours are MedSAM2 output under dual-anchored bidirectional propagation: zero-shot, no cardiac-specific training.',
   labels: [
     { key: 'rv', label: 'RV', varName: '--rv' },
     { key: 'myo', label: 'Myocardium', varName: '--myo' },

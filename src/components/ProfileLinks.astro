@@ -1,0 +1,295 @@
+---
+/**
+ * The identity strip: where someone is, and every profile that proves it.
+ *
+ * A recruiter or a programme chair scans for exactly these, so they sit above
+ * the fold rather than in the footer. The list comes from lib/profiles.ts, so
+ * adding a service is one line in site.ts and it appears everywhere at once.
+ *
+ * The whole label is the link — icon included — but the link wraps its own
+ * content rather than the row, so the empty space beside a short label is not
+ * a click target.
+ *
+ * Every mark below is the vendor's own artwork, copied verbatim:
+ *   Google Scholar / ORCID / GitHub — simple-icons
+ *   LinkedIn                        — Bootstrap Icons (simple-icons dropped it)
+ *   dblp                            — see DblpMark.astro
+ *   pin / landmark / envelope       — Lucide
+ * Drawing these by hand is exactly what makes a page look amateur, so nothing
+ * here is hand-drawn.
+ */
+import { site } from '../data/site';
+import { getProfiles, type ProfileKey } from '../lib/profiles';
+import DblpMark from './DblpMark.astro';
+
+interface Props {
+  /** `stack` runs vertically; `inline` wraps across. */
+  variant?: 'stack' | 'inline';
+  /** Include location / affiliation / email above the profile links. */
+  meta?: boolean;
+  /** Services to leave out here — the rest of the site still shows them. */
+  exclude?: ProfileKey[];
+  class?: string;
+}
+
+// Prefixed, because bare `stack` and `row` collide with the global utilities
+// in global.css — `.stack > * + *` was silently adding a 1rem flow margin to
+// every row here and blowing the list open.
+const { variant = 'stack', meta = true, exclude = [], class: className } = Astro.props;
+const layout = `layout-${variant}`;
+
+type Glyph = { viewBox: string; body: string; solid?: boolean };
+
+/**
+ * Bodies are verbatim vendor markup, so each keeps its own viewBox — LinkedIn's
+ * is 16 units, the rest are 24. `solid` marks a filled silhouette; the others
+ * are stroked and take their weight from CSS.
+ */
+const ICON: Record<string, Glyph> = {
+  location: {
+    viewBox: '0 0 24 24',
+    body: '<path d="M20 10c0 4.993-5.539 10.193-7.399 11.799a1 1 0 0 1-1.202 0C9.539 20.193 4 14.993 4 10a8 8 0 0 1 16 0"/><circle cx="12" cy="10" r="3"/>',
+  },
+  org: {
+    viewBox: '0 0 24 24',
+    body: '<path d="M10 18v-7"/><path d="M11.119 2.205a2 2 0 0 1 1.762 0l7.84 3.846A.5.5 0 0 1 20.5 7h-17a.5.5 0 0 1-.22-.949z"/><path d="M14 18v-7"/><path d="M18 18v-7"/><path d="M3 22h18"/><path d="M6 18v-7"/>',
+  },
+  mail: {
+    viewBox: '0 0 24 24',
+    body: '<path d="m22 7-8.991 5.727a2 2 0 0 1-2.009 0L2 7"/><rect x="2" y="4" width="20" height="16" rx="2"/>',
+  },
+  scholar: {
+    viewBox: '0 0 24 24',
+    solid: true,
+    body: '<path d="M5.242 13.769L0 9.5 12 0l12 9.5-5.242 4.269C17.548 11.249 14.978 9.5 12 9.5c-2.977 0-5.548 1.748-6.758 4.269zM12 10a7 7 0 1 0 0 14 7 7 0 0 0 0-14z"/>',
+  },
+  orcid: {
+    viewBox: '0 0 24 24',
+    solid: true,
+    body: '<path d="M12 0C5.372 0 0 5.372 0 12s5.372 12 12 12 12-5.372 12-12S18.628 0 12 0zM7.369 4.378c.525 0 .947.431.947.947s-.422.947-.947.947a.95.95 0 0 1-.947-.947c0-.525.422-.947.947-.947zm-.722 3.038h1.444v10.041H6.647V7.416zm3.562 0h3.9c3.712 0 5.344 2.653 5.344 5.025 0 2.578-2.016 5.025-5.325 5.025h-3.919V7.416zm1.444 1.303v7.444h2.297c3.272 0 4.022-2.484 4.022-3.722 0-2.016-1.284-3.722-4.097-3.722h-2.222z"/>',
+  },
+  github: {
+    viewBox: '0 0 24 24',
+    solid: true,
+    body: '<path d="M12 .297c-6.63 0-12 5.373-12 12 0 5.303 3.438 9.8 8.205 11.385.6.113.82-.258.82-.577 0-.285-.01-1.04-.015-2.04-3.338.724-4.042-1.61-4.042-1.61C4.422 18.07 3.633 17.7 3.633 17.7c-1.087-.744.084-.729.084-.729 1.205.084 1.838 1.236 1.838 1.236 1.07 1.835 2.809 1.305 3.495.998.108-.776.417-1.305.76-1.605-2.665-.3-5.466-1.332-5.466-5.93 0-1.31.465-2.38 1.235-3.22-.135-.303-.54-1.523.105-3.176 0 0 1.005-.322 3.3 1.23.96-.267 1.98-.399 3-.405 1.02.006 2.04.138 3 .405 2.28-1.552 3.285-1.23 3.285-1.23.645 1.653.24 2.873.12 3.176.765.84 1.23 1.91 1.23 3.22 0 4.61-2.805 5.625-5.475 5.92.42.36.81 1.096.81 2.22 0 1.606-.015 2.896-.015 3.286 0 .315.21.69.825.57C20.565 22.092 24 17.592 24 12.297c0-6.627-5.373-12-12-12"/>',
+  },
+  linkedin: {
+    viewBox: '0 0 16 16',
+    solid: true,
+    body: '<path d="M0 1.146C0 .513.526 0 1.175 0h13.65C15.474 0 16 .513 16 1.146v13.708c0 .633-.526 1.146-1.175 1.146H1.175C.526 16 0 15.487 0 14.854zm4.943 12.248V6.169H2.542v7.225zm-1.2-8.212c.837 0 1.358-.554 1.358-1.248-.015-.709-.52-1.248-1.342-1.248S2.4 3.226 2.4 3.934c0 .694.521 1.248 1.327 1.248zm4.908 8.212V9.359c0-.216.016-.432.08-.586.173-.431.568-.878 1.232-.878.869 0 1.216.662 1.216 1.634v3.865h2.401V9.25c0-2.22-1.184-3.252-2.764-3.252-1.274 0-1.845.7-2.165 1.193v.025h-.016l.016-.025V6.169h-2.4c.03.678 0 7.225 0 7.225z"/>',
+  },
+  // dblp is a multi-colour mark, drawn by its own component.
+  dblp: { viewBox: '', body: '' },
+};
+
+type Row = { icon: string; label: string; href?: string; tip?: string; brand?: string };
+
+const facts: Row[] = meta
+  ? ([
+      { icon: 'location', label: site.location },
+      { icon: 'org', label: site.affiliation },
+      // mailto opens whatever the reader's default client is — Outlook for
+      // most people on a university machine. The address is also revealed on
+      // hover, so anyone without a mail client set up can still copy it.
+      { icon: 'mail', label: 'Email', href: `mailto:${site.email}`, tip: site.email },
+    ].filter((r) => r.label) as Row[])
+  : [];
+
+/** Vendor brand colours, from simple-icons' own metadata. */
+const BRAND: Record<string, string> = {
+  scholar: '#4285F4',
+  orcid: '#A6CE39',
+  linkedin: '#0A66C2',
+  // github is deliberately absent: its colour has to change with the theme,
+  // and an inline style would outrank the stylesheet rule that does that.
+};
+
+const profiles: Row[] = getProfiles(exclude).map((p) => ({
+  icon: p.key,
+  label: p.label,
+  href: p.href,
+  brand: BRAND[p.key],
+}));
+
+const rows = [...facts, ...profiles];
+const isExternal = (href: string) => href.startsWith('http');
+---
+
+{
+  rows.length > 0 && (
+    <ul class:list={['links', layout, className]}>
+      {rows.map((row) => {
+        const glyph = ICON[row.icon];
+        const Mark =
+          row.icon === 'dblp' ? (
+            <DblpMark />
+          ) : (
+            <svg
+              class:list={['icon', { solid: glyph.solid, gh: row.icon === 'github' }]}
+              viewBox={glyph.viewBox}
+              style={row.brand ? `--brand: ${row.brand}` : undefined}
+              aria-hidden="true"
+              focusable="false"
+              set:html={glyph.body}
+            />
+          );
+
+        const Inner = (
+          <>
+            {Mark}
+            <span class="label">{row.label}</span>
+          </>
+        );
+
+        return (
+          <li>
+            {row.href ? (
+              <a
+                href={row.href}
+                data-tip={row.tip}
+                rel={isExternal(row.href) ? 'me noopener' : undefined}
+                target={isExternal(row.href) ? '_blank' : undefined}
+              >
+                {Inner}
+              </a>
+            ) : (
+              <span class="static">{Inner}</span>
+            )}
+          </li>
+        );
+      })}
+    </ul>
+  )
+}
+
+<style>
+  .links {
+    list-style: none;
+    padding: 0;
+    margin: 0;
+    display: grid;
+    gap: var(--sp-1);
+    font-size: var(--text-sm);
+    color: var(--ink-secondary);
+  }
+
+  .layout-inline {
+    grid-auto-flow: column;
+    grid-auto-columns: max-content;
+    gap: var(--sp-1) var(--sp-4);
+    align-items: center;
+  }
+
+  @media (width < 46rem) {
+    .layout-inline {
+      grid-auto-flow: row;
+      grid-auto-columns: auto;
+    }
+  }
+
+  li {
+    min-width: 0;
+  }
+
+  /* `inline-grid` so the link wraps its own content: the icon and the words
+     are the hit target, and the empty space to the right of a short label is
+     not. Negative inline margin keeps the icons optically aligned with the
+     column while the padded box still gives the pointer somewhere to land. */
+  a,
+  .static {
+    display: inline-grid;
+    grid-template-columns: 1.05rem auto;
+    gap: var(--sp-3);
+    align-items: center;
+    max-width: 100%;
+    padding: 0.15rem 0.4rem;
+    margin-inline: -0.4rem;
+    border-radius: var(--radius-sm);
+    text-decoration: none;
+    color: var(--ink-secondary);
+    transition: color var(--dur-fast) var(--ease),
+      background-color var(--dur-fast) var(--ease);
+  }
+
+  /* The icons keep their brand colours on hover — recolouring them to the
+     accent would throw away the thing that makes them recognisable. Only the
+     label and the backing move. */
+  a:hover {
+    color: var(--accent);
+    background: var(--accent-soft);
+  }
+
+  .label {
+    overflow-wrap: anywhere;
+  }
+
+  /* `--brand` is set inline per service; the facts above have none and fall
+     back to the neutral so the column does not turn into confetti. */
+  .icon {
+    width: 1.05rem;
+    height: 1.05rem;
+    fill: none;
+    stroke: var(--brand, var(--ink-faint));
+    stroke-width: 2;
+    stroke-linecap: round;
+    stroke-linejoin: round;
+  }
+
+  /* Brand marks are filled silhouettes; stroking them turns to mud. */
+  .icon.solid {
+    fill: var(--brand, var(--ink-faint));
+    stroke: none;
+  }
+
+  /* GitHub's mark is near-black by definition, which vanishes on a dark card.
+     Light-on-dark is GitHub's own alternative treatment, so use that. Set
+     here rather than inline, because an inline custom property would win over
+     the theme override below. */
+  .icon.gh {
+    --brand: #181717;
+  }
+
+  :global(:root[data-theme='dark']) .icon.gh {
+    --brand: #e6edf3;
+  }
+
+  /* ── Email address on hover ──────────────────────────────────────────── */
+
+  [data-tip] {
+    position: relative;
+  }
+
+  [data-tip]::after {
+    content: attr(data-tip);
+    position: absolute;
+    left: 0.4rem;
+    bottom: calc(100% + 0.3rem);
+    z-index: 5;
+    padding: 0.3rem 0.55rem;
+    border: 1px solid var(--line-strong);
+    border-radius: var(--radius-sm);
+    background: var(--surface);
+    color: var(--ink);
+    font-family: var(--font-mono);
+    font-size: var(--text-xs);
+    white-space: nowrap;
+    box-shadow: var(--shadow);
+    opacity: 0;
+    transform: translateY(0.2rem);
+    pointer-events: none;
+    transition: opacity var(--dur-fast) var(--ease), transform var(--dur-fast) var(--ease);
+  }
+
+  [data-tip]:hover::after,
+  [data-tip]:focus-visible::after {
+    opacity: 1;
+    transform: none;
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    [data-tip]::after {
+      transition: none;
+      transform: none;
+    }
+  }
+</style>

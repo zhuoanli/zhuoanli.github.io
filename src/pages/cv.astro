@@ -2,6 +2,7 @@
 import BaseLayout from '../layouts/BaseLayout.astro';
 import PageHeader from '../components/PageHeader.astro';
 import { cv } from '../data/cv';
+import { getProfiles } from '../lib/profiles';
 import { site } from '../data/site';
 import { copy } from '../data/copy';
 
@@ -9,12 +10,7 @@ import { copy } from '../data/copy';
 // a finished page rather than a form waiting to be completed.
 const sections = cv.filter((s) => (s.kind === 'timeline' ? s.entries.length > 0 : s.groups.length > 0));
 
-const externals = [
-  { label: 'GitHub', href: site.links.github },
-  { label: 'Google Scholar', href: site.links.scholar },
-  { label: 'ORCID', href: site.links.orcid },
-  { label: 'LinkedIn', href: site.links.linkedin },
-].filter((l) => l.href);
+const externals = getProfiles();
 
 // Only offer a download once an actual PDF is sitting in public/.
 const pdfHref = site.links.cv.endsWith('.pdf') ? site.links.cv : null;

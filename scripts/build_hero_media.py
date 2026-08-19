@@ -55,11 +55,32 @@ VIEWBOX = 1000  # contour coordinate space
 LABELS = {1: "rv", 2: "myo", 3: "lv"}
 
 
+def orient(a):
+    """Put the heart in conventional short-axis display orientation.
+
+    The upstream preprocessing (MIUA_2026/preprocessing/prep_acdc_4d.py) uses
+    the first NIfTI voxel axis directly as image rows and never applies a
+    display convention, so the volume arrives rotated: the RV sits *above* the
+    LV instead of beside it. Short-axis is conventionally shown with the RV to
+    the image-left of the LV.
+
+    Rotating 90 degrees clockwise and then mirroring horizontally is exactly a
+    transpose of the two spatial axes, so that is what this is. Written with
+    negative axes to work on both the (t, c, y, x) frames and the (t, y, x)
+    label volume.
+
+    Applied before the centroid, crop, window, sprite and contour extraction —
+    the raster and the polygons come out of the same transformed arrays and
+    therefore cannot drift apart.
+    """
+    return np.swapaxes(a, -2, -1)
+
+
 def main() -> None:
     pre = np.load(MIUA / f"preprocessed/patient{PATIENT}_slice{SLICE}.npz")
     post = np.load(MIUA / f"results/medsam2/patient{PATIENT}_slice{SLICE}.npz")
-    frames = pre["frames"].astype(np.float32)
-    pred = post["bidir"]
+    frames = orient(pre["frames"].astype(np.float32))
+    pred = orient(post["bidir"])
     n_frames = frames.shape[0]
 
     # Centre on the LV+myocardium centroid rather than the full mask bounding

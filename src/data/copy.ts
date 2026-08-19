@@ -36,6 +36,24 @@ export const copy = {
     },
   },
 
+  about: {
+    eyebrow: 'About',
+    title: 'About me',
+    /** Each string is one paragraph. Replace with your own voice. */
+    bio: [
+      'TODO: who you are and what you work on, in your own words. Two or three sentences — longer and warmer than the one-liner on the home page.',
+      'TODO: how you got here. Prior degree, what pulled you toward cardiac imaging, what you want to do next. This is the paragraph someone hiring actually reads.',
+    ],
+    interests: {
+      eyebrow: 'Beyond the lab',
+      lede: 'TODO: one line framing what follows.',
+      /** Free text; keep them short enough to read as tags. */
+      items: ['TODO', 'TODO', 'TODO'],
+    },
+    educationLabel: 'Education',
+    elsewhereLabel: 'Find me',
+  },
+
   research: {
     eyebrow: 'Research',
     title: 'Research',

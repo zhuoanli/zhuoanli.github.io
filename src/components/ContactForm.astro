@@ -1,0 +1,297 @@
+---
+/**
+ * "Leave a message" — a dialog, and a mail client if there is no JavaScript.
+ *
+ * The trigger ships as a plain mailto link, which works with scripting off and
+ * on any device. JavaScript upgrades it into a <dialog>: native, so Esc, the
+ * backdrop, focus trapping and inertness of the page behind come for free.
+ *
+ * Submitting POSTs to whatever service site.ts names. With none configured it
+ * hands the typed message back to the mail client rather than pretending to
+ * send — a form that silently drops what someone wrote is the worst outcome
+ * here, so every failure path ends with their words preserved.
+ */
+import { site } from '../data/site';
+
+const { endpoint, accessKey, subject } = site.contactForm;
+
+// Pre-filled so the fallback still arrives labelled the same way as the rest.
+const mailtoHref = `mailto:${site.email}?subject=${encodeURIComponent(subject)}`;
+---
+
+<div
+  class="contact-form"
+  data-contact-form
+  data-endpoint={endpoint || undefined}
+  data-access-key={accessKey || undefined}
+  data-subject={subject}
+  data-email={site.email}
+>
+  <a class="btn btn-primary trigger" href={mailtoHref} data-open>
+    Leave a message
+    <span class="arrow" aria-hidden="true">→</span>
+  </a>
+
+  <dialog class="sheet" data-dialog aria-labelledby="msg-title">
+    <form method="dialog" class="head">
+      <p class="eyebrow" id="msg-title">Leave a message</p>
+      <button class="close" value="cancel" aria-label="Close">×</button>
+    </form>
+
+    <form data-form novalidate>
+      <label>
+        <span>Your name</span>
+        <input type="text" name="name" autocomplete="name" required />
+      </label>
+
+      <label>
+        <span>Your email</span>
+        <input type="email" name="email" autocomplete="email" required />
+      </label>
+
+      <label>
+        <span>Message</span>
+        <textarea name="message" rows="5" required></textarea>
+      </label>
+
+      {/* Bots fill every field they find; people never see this one. */}
+      <div class="trap" aria-hidden="true">
+        <label>
+          Leave this empty
+          <input type="text" name="botcheck" tabindex="-1" autocomplete="off" />
+        </label>
+      </div>
+
+      <div class="actions">
+        <button type="submit" class="btn btn-primary" data-submit>Send</button>
+        <p class="status" data-status role="status" aria-live="polite"></p>
+      </div>
+    </form>
+  </dialog>
+</div>
+
+<style>
+  /* Shape and colour come from the global .btn / .btn-primary. This is the
+     action the card actually wants — writing a message needs no mail client
+     and no app switch — so it carries the emphasis and the address beside it
+     steps down to an outline. */
+  .trigger {
+    text-decoration: none;
+  }
+
+  .arrow {
+    transition: transform var(--dur) var(--ease-out);
+  }
+
+  .trigger:hover .arrow {
+    transform: translateX(0.2rem);
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    .arrow {
+      transition: none;
+    }
+  }
+
+  /* Centred explicitly. A modal dialog only inherits the UA's `margin:auto`
+     centring while its inset is untouched, and any positioning of our own
+     drops it into the top-left corner. */
+  .sheet {
+    position: fixed;
+    inset: 0;
+    margin: auto;
+    width: min(30rem, calc(100vw - 2rem));
+    max-height: calc(100dvh - 3rem);
+    overflow-y: auto;
+    padding: var(--sp-6);
+    border: 1px solid var(--card-line);
+    border-radius: var(--radius-xl);
+    background: var(--card-bg);
+    color: var(--ink);
+    box-shadow: var(--shadow-lg);
+  }
+
+  .sheet::backdrop {
+    background: rgb(0 0 0 / 0.45);
+    backdrop-filter: blur(2px);
+  }
+
+  .head {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: var(--sp-4);
+    margin-block-end: var(--sp-5);
+  }
+
+  .close {
+    width: 1.9rem;
+    height: 1.9rem;
+    border: 1px solid var(--line);
+    border-radius: var(--radius-full);
+    background: transparent;
+    color: var(--ink-muted);
+    font-size: 1.1rem;
+    line-height: 1;
+    cursor: pointer;
+  }
+
+  .close:hover {
+    border-color: var(--line-strong);
+    color: var(--ink);
+  }
+
+  [data-form] {
+    display: grid;
+    gap: var(--sp-4);
+  }
+
+  label {
+    display: grid;
+    gap: var(--sp-2);
+    font-size: var(--text-sm);
+    color: var(--ink-secondary);
+  }
+
+  input,
+  textarea {
+    width: 100%;
+    padding: 0.55rem 0.7rem;
+    border: 1px solid var(--line-strong);
+    border-radius: var(--radius);
+    background: var(--bg);
+    color: var(--ink);
+    font-size: var(--text-base);
+  }
+
+  textarea {
+    resize: vertical;
+    min-height: 6rem;
+  }
+
+  input:focus-visible,
+  textarea:focus-visible {
+    outline: 2px solid var(--accent);
+    outline-offset: 1px;
+    border-color: var(--accent);
+  }
+
+  /* Off-screen rather than display:none — bots skip hidden fields, but fill
+     anything they can reach. */
+  .trap {
+    position: absolute;
+    left: -9999px;
+    width: 1px;
+    height: 1px;
+    overflow: hidden;
+  }
+
+  .actions {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: var(--sp-4);
+  }
+
+  .status {
+    font-size: var(--text-sm);
+    color: var(--ink-muted);
+  }
+
+  .status[data-state='error'] {
+    color: var(--lv);
+  }
+
+  .status[data-state='sent'] {
+    color: var(--accent);
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    .arrow {
+      transition: none;
+    }
+  }
+</style>
+
+<script>
+  const root = document.querySelector<HTMLElement>('[data-contact-form]');
+  const dialog = root?.querySelector<HTMLDialogElement>('[data-dialog]');
+  const opener = root?.querySelector<HTMLAnchorElement>('[data-open]');
+  const form = root?.querySelector<HTMLFormElement>('[data-form]');
+  const status = root?.querySelector<HTMLElement>('[data-status]');
+  const submit = root?.querySelector<HTMLButtonElement>('[data-submit]');
+
+  // Without <dialog> support the anchor keeps its mailto behaviour untouched.
+  if (root && dialog && opener && form && status && submit && dialog.showModal) {
+    opener.addEventListener('click', (e) => {
+      e.preventDefault();
+      dialog.showModal();
+    });
+
+    const { endpoint, accessKey, subject, email } = root.dataset;
+
+    /** Hands the message back to the reader rather than losing it. */
+    const handOff = (data: Record<string, string>) => {
+      const body = `${data.message}\n\n— ${data.name} <${data.email}>`;
+      location.href =
+        `mailto:${email}?subject=${encodeURIComponent(subject!)}` +
+        `&body=${encodeURIComponent(body)}`;
+    };
+
+    form.addEventListener('submit', async (e) => {
+      e.preventDefault();
+      if (!form.reportValidity()) return;
+
+      const fd = new FormData(form);
+      const data = Object.fromEntries(fd) as Record<string, string>;
+      if (data.botcheck) return; // honeypot tripped
+
+      // No service configured yet: open the mail client, pre-filled.
+      if (!endpoint) {
+        handOff(data);
+        return;
+      }
+
+      submit.disabled = true;
+      status.dataset.state = '';
+      status.textContent = 'Sending…';
+
+      try {
+        // FormData, not JSON: a JSON content-type makes this a preflighted
+        // cross-origin request, and the OPTIONS round trip is one more thing
+        // that can be blocked between a visitor and the form. Multipart is a
+        // "simple" request, goes straight out, and is what Web3Forms and
+        // Formspree both document.
+        const payload = new FormData();
+        payload.set('name', data.name);
+        payload.set('email', data.email);
+        payload.set('message', data.message);
+        // Formspree reads `_subject`, Web3Forms reads `subject`. Sending both
+        // costs nothing and means the endpoint can change freely.
+        payload.set('subject', `${subject} — ${data.name}`);
+        payload.set('_subject', `${subject} — ${data.name}`);
+        if (accessKey) payload.set('access_key', accessKey);
+
+        const res = await fetch(endpoint, {
+          method: 'POST',
+          // `Accept` is CORS-safelisted, so asking for JSON back does not
+          // reintroduce the preflight.
+          headers: { Accept: 'application/json' },
+          body: payload,
+        });
+
+        if (!res.ok) throw new Error(String(res.status));
+
+        status.dataset.state = 'sent';
+        status.textContent = 'Sent — thank you.';
+        form.reset();
+      } catch {
+        status.dataset.state = 'error';
+        status.textContent = 'Could not send. Opening your mail app instead…';
+        setTimeout(() => handOff(data), 900);
+      } finally {
+        submit.disabled = false;
+      }
+    });
+  }
+</script>

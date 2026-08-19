@@ -1,0 +1,48 @@
+---
+/**
+ * Profile photo, with a graceful stand-in.
+ *
+ * `site.photo` empty renders the placeholder SVG, which is decorative and so
+ * carries an empty alt; a real photo carries the name. Both come from public/,
+ * not src/assets/ — an asset import of a file that is not there yet would fail
+ * the build, and the whole point is that this is safe to ship before the photo
+ * exists.
+ */
+import { site } from '../data/site';
+
+interface Props {
+  class?: string;
+}
+
+const { class: className } = Astro.props;
+const src = site.photo || '/avatar-placeholder.svg';
+const placeholder = !site.photo;
+---
+
+<div class:list={['avatar', { placeholder }, className]}>
+  <img src={src} alt={placeholder ? '' : site.name} width="400" height="400" />
+</div>
+
+<style>
+  .avatar {
+    aspect-ratio: 1;
+    overflow: hidden;
+    border-radius: var(--radius-lg);
+    border: 1px solid var(--card-line);
+    background: var(--bg-sunken);
+    box-shadow: var(--card-shadow);
+  }
+
+  .avatar img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+  }
+
+  /* The stand-in is artwork, not a photograph — a dashed edge says "not yet"
+     rather than letting it read as a deliberate abstract portrait. */
+  .placeholder {
+    border-style: dashed;
+    box-shadow: none;
+  }
+</style>

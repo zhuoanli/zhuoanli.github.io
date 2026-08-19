@@ -1,15 +1,11 @@
 ---
 import { site } from '../data/site';
+import { getProfiles } from '../lib/profiles';
 
 const year = new Date().getFullYear();
 
-// Only render links that have actually been filled in.
-const external = [
-  { label: 'GitHub', href: site.links.github },
-  { label: 'Google Scholar', href: site.links.scholar },
-  { label: 'ORCID', href: site.links.orcid },
-  { label: 'LinkedIn', href: site.links.linkedin },
-].filter((l) => l.href);
+// One shared list — see lib/profiles.ts. Empty entries render nothing.
+const external = getProfiles();
 ---
 
 <footer class="footer">
