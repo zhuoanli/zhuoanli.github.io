@@ -20,11 +20,12 @@ export const site = {
   statement:
     'I build and stress-test foundation models for medical imaging — and I am mostly interested in where they quietly fail. My work runs from zero-shot cardiac segmentation that matches supervised baselines without a single label, to showing that a benchmark the field reports as one number is measuring four different things.',
 
-  role: 'PhD Researcher', // TODO: confirm exact title
-  affiliation: 'Purdue University', // TODO: confirm department / lab
-  department: '', // TODO
-  advisor: '', // TODO — rendered on /cv only if set
-  location: 'West Lafayette, IN, USA', // TODO: confirm city, state, country
+  role: 'PhD Candidate',
+  affiliation: 'Purdue University',
+  department: 'Weldon School of Biomedical Engineering',
+  /** Deliberately empty — advisors are not featured anywhere on this site. */
+  advisor: '',
+  location: 'West Lafayette, IN, USA',
   email: 'zhuoanli07@gmail.com',
 
   /**
@@ -44,6 +45,9 @@ export const site = {
     orcid: 'https://orcid.org/0009-0005-0647-8579',
     dblp: 'https://dblp.org/pid/309/2988.html',
     linkedin: 'https://www.linkedin.com/in/zhuoan-li-lza1207/',
+    // Personal rather than academic, so it only shows where it is asked for
+    // — see the `personal` flag in lib/profiles.ts.
+    instagram: 'https://www.instagram.com/zhuoan_li/',
     twitter: '',
     // Points at the HTML CV, which always exists. Change this to '/cv.pdf'
     // once you drop the file in public/ — the CV page shows a download button
@@ -95,17 +99,14 @@ export const site = {
     { id: 'foundation-models', label: 'Foundation models' },
     { id: 'zero-shot', label: 'Zero-shot adaptation' },
     { id: 'clinical', label: 'Clinical validation' },
-    { id: 'scale', label: 'Large-scale training' },
+    { id: 'scale', label: 'Registry scale' },
   ],
 
-  /**
-   * Projects is built and working but deliberately out of the nav for now —
-   * there is nothing real in it yet. Add the entry back to restore it; the
-   * route, the collection and the page all still exist.
-   */
   nav: [
+    { href: '/', label: 'Home' },
     { href: '/research', label: 'Research' },
     { href: '/publications', label: 'Publications' },
+    { href: '/projects', label: 'Projects' },
     { href: '/about', label: 'About me' },
     { href: '/cv', label: 'CV' },
   ],
@@ -131,12 +132,25 @@ export const hero = {
 } as const;
 
 /**
- * Headline numbers. Every one of these traces to results/metrics_acdc_val.json
- * in the MIUA working tree — no hand-copied figures.
+ * NOT CURRENTLY RENDERED. The metric band was taken off the home page; these
+ * numbers now live in the highlights of src/content/publications/miua-4dseg.md,
+ * with the paper they belong to. MetricBand.astro is still here — drop
+ * `<MetricBand />` back into a page to bring it back.
+ *
+ * Headline numbers, each one traceable to the MIUA camera-ready.
+ *
+ * The first two and the last come from results/metrics_acdc_val.json; the 51%
+ * is quoted from the abstract itself ("reducing mean HD95 and ASSD by
+ * approximately 51% and 62%, respectively, compared with single-anchor").
+ *
+ * A "136 patients / 4 scanner vendors, M&Ms" figure used to sit here. It was
+ * draft-stage external validation that got cut from the camera-ready, so it
+ * appears in no paper — do not put it back. The cross-vendor number that did
+ * survive is CycleQA's 320 M&Ms patients, which is a different paper.
  */
 export const metrics = [
   { value: 0.85, format: 'dp3', label: 'RV Dice', note: 'zero-shot, ACDC' },
   { value: 2.94, format: 'dp2', unit: 'mm', label: 'RV HD95', note: 'beats supervised DINOv2 4×' },
-  { value: 136, format: 'int', label: 'Patients held out', note: '4 scanner vendors, M&Ms' },
+  { value: 51, format: 'int', unit: '%', label: 'Lower HD95', note: 'vs single-anchor propagation' },
   { value: 0, format: 'int', label: 'Target labels used', note: 'no fine-tuning' },
 ] as const;

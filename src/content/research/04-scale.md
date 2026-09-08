@@ -1,18 +1,21 @@
 ---
-title: Evaluation at scale
+title: Working at registry scale
 id: scale
 summary: >-
-  TODO: two sentences. This is the thread behind "a benchmark the field reports
-  as one number is measuring four different things" — say what the number hides
-  and what you replaced it with.
+  Methods that survive one benchmark often fail the registry. The largest
+  synthetic-ECV validation to date — 9,700 exams across 4 centers — plus a
+  1.3M-sentence MRI report corpus for studying what pretraining objectives
+  actually learn.
 order: 4
-pubs: []
-# figure: ../../assets/research/scale.webp
-# figureAlt: TODO
+pubs:
+  - ismrm-ecv
+  - scmr-hematocrit
+draft: false
 ---
 
-TODO — expand.
-
-Note the id `scale` must stay in sync with `site.capabilities` in
-`src/data/site.ts`. If you rename one, rename both, or the hero chip quietly
-falls back to linking at `/research` instead of this section.
+Scale changes the questions. At 9,700 examinations, feature selection has to
+be provably leakage-free (all 511 predictor subsets, patient-level locked
+splits), calibration differences between men and women stop being noise, and a
+same-day blood draw versus a 30-day-old one becomes a measurable modeling
+decision. The same instinct drives corpus work on how negation — the majority
+of radiology text — is absorbed, or ignored, by vision–language pretraining.

@@ -27,6 +27,8 @@ const affiliation = [site.department, site.affiliation].filter(Boolean).join(', 
         <p class="name">{site.name}</p>
         <p class="role">{[site.role, affiliation].filter(Boolean).join(' · ')}</p>
       </div>
+      {/* Add `personal` to bring in the non-academic accounts (Instagram) —
+          the icon, the colour and the link are all wired, just switched off. */}
       <ProfileLinks />
     </aside>
 
@@ -56,7 +58,7 @@ const affiliation = [site.department, site.affiliation].filter(Boolean).join(', 
         )
       }
 
-      <section class="block interests glow" data-reveal="3">
+      <section class="block interests" data-reveal="3">
         <ContourMark class="interests-mark" frame={cine.esIdx} weight={6} />
         <div class="interests-body">
           <h2 class="eyebrow">{copy.about.interests.eyebrow}</h2>

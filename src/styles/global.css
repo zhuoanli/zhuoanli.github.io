@@ -252,6 +252,21 @@ pre {
   color: var(--accent-ink);
 }
 
+/* A second call to action that has to hold its own beside a filled button
+   without fighting it: the accent moves to the edge and the label, and the
+   fill stays empty. */
+.btn-accent {
+  border-color: var(--accent);
+  color: var(--accent);
+  font-weight: 520;
+}
+
+.btn-accent:hover {
+  background: var(--accent-soft);
+  border-color: var(--accent);
+  color: var(--accent);
+}
+
 /* The small pill used for PDF / arXiv / Code rows under a citation. */
 .btn-sm {
   padding: 0.25rem 0.65rem;

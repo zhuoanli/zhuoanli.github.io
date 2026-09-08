@@ -7,6 +7,12 @@ interface Props {
 }
 const { bleed = false } = Astro.props;
 const path = Astro.url.pathname;
+
+/**
+ * Home has to match exactly. Every path begins with '/', so a prefix test
+ * marks it the current page on every page of the site.
+ */
+const isCurrent = (href: string) => (href === '/' ? path === '/' : path.startsWith(href));
 ---
 
 <header class:list={['header', { bleed }]} data-header>
@@ -21,10 +27,7 @@ const path = Astro.url.pathname;
         {
           site.nav.map((item) => (
             <li>
-              <a
-                href={item.href}
-                aria-current={path.startsWith(item.href) ? 'page' : undefined}
-              >
+              <a href={item.href} aria-current={isCurrent(item.href) ? 'page' : undefined}>
                 {item.label}
               </a>
             </li>

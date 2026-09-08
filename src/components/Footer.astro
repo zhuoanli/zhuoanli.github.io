@@ -4,8 +4,10 @@ import { getProfiles } from '../lib/profiles';
 
 const year = new Date().getFullYear();
 
-// One shared list — see lib/profiles.ts. Empty entries render nothing.
-const external = getProfiles();
+// One shared list — see lib/profiles.ts. dblp and ORCID are indexes rather
+// than places anyone browses to; they stay in the identity rail, on the CV and
+// in the structured data, which is where they actually earn their keep.
+const external = getProfiles(['dblp', 'orcid']);
 ---
 
 <footer class="footer">

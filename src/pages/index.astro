@@ -1,7 +1,6 @@
 ---
 import BaseLayout from '../layouts/BaseLayout.astro';
 import HeroCine from '../components/HeroCine.astro';
-import MetricBand from '../components/MetricBand.astro';
 import PublicationCard from '../components/PublicationCard.astro';
 import NewsList from '../components/NewsList.astro';
 import CineLoop from '../components/CineLoop.astro';
@@ -65,11 +64,17 @@ const frameFor = (i: number) => Math.round((i * cine.frames) / Math.max(themes.l
           {chips.map((c) => <li><a class="chip" href={c.href}>{c.label}</a></li>)}
         </ul>
 
+        {/* One call to action. Publications is already in the nav, and a
+            second button here only split the attention.
+
+            Scrolls to the contact card rather than firing a mail client at
+            someone who has not decided to write yet — hence the downward
+            arrow, which says where the click goes. */}
         <div class="cluster" data-reveal="5">
-          <a class="btn btn-primary" href="/publications">Publications</a>
-          {/* Scrolls to the contact card rather than firing a mail client at
-              someone who has not decided to write yet. */}
-          <a class="btn" href="#contact">Get in touch</a>
+          <a class="btn btn-accent" href="#contact">
+            Get in touch
+            <span class="down" aria-hidden="true">↓</span>
+          </a>
         </div>
       </div>
 
@@ -78,8 +83,6 @@ const frameFor = (i: number) => Math.round((i * cine.frames) / Math.max(themes.l
       </div>
     </div>
   </section>
-
-  <MetricBand />
 
   {/* ── Research: the signature row. Four loops on one clock. ─────────── */}
   <section class="section wrap" aria-labelledby="h-research">
@@ -251,6 +254,20 @@ const frameFor = (i: number) => Math.round((i * cine.frames) / Math.max(themes.l
   .statement {
     max-width: 52ch;
     color: var(--ink-secondary);
+  }
+
+  .down {
+    transition: transform var(--dur) var(--ease-out);
+  }
+
+  .btn-accent:hover .down {
+    transform: translateY(0.15rem);
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    .down {
+      transition: none;
+    }
   }
 
   /* ── Research grid ──────────────────────────────────────────────────── */

@@ -39,16 +39,22 @@ export const copy = {
   about: {
     eyebrow: 'About',
     title: 'About me',
-    /** Each string is one paragraph. Replace with your own voice. */
+    /** Each string is one paragraph. Facts from the CV; edit freely. */
     bio: [
-      'TODO: who you are and what you work on, in your own words. Two or three sentences — longer and warmer than the one-liner on the home page.',
-      'TODO: how you got here. Prior degree, what pulled you toward cardiac imaging, what you want to do next. This is the paragraph someone hiring actually reads.',
+      'I am a PhD candidate in Biomedical Engineering at Purdue University, working on deep learning for medical imaging — mostly cardiac MRI. My current work centers on foundation models: what they can do zero-shot, when to trust them without labels, and what it takes to validate them at registry scale rather than on a single benchmark.',
+      'I came to Purdue from a Biomedical Engineering degree at ShanghaiTech University, where I first got pulled into imaging through photoacoustic reconstruction and a vessel-wall segmentation challenge. Since then the thread has stayed the same — building imaging methods that hold up on real, messy, multi-center data — and it has run through zero-shot cine segmentation, label-free quality assurance, stress-perfusion classification, and a 9,700-exam study that removes the blood draw from ECV mapping.',
     ],
     interests: {
-      eyebrow: 'Beyond the lab',
-      lede: 'TODO: one line framing what follows.',
-      /** Free text; keep them short enough to read as tags. */
-      items: ['TODO', 'TODO', 'TODO'],
+      eyebrow: 'Research interests',
+      lede: 'The recurring questions across the projects.',
+      /** From the CV's research-interest section, compressed to tag length. */
+      items: [
+        'Foundation models for medical imaging',
+        'LLMs for clinical reasoning',
+        'Segmentation & quantification',
+        'Registry-scale validation',
+        'Tissue characterization',
+      ],
     },
     educationLabel: 'Education',
     elsewhereLabel: 'Find me',
