@@ -11,6 +11,8 @@ pubs:
   - miua-cycleqa
   - scmr-uncertainty
   - scmr-qc
+figure: ../../assets/pubs/miua-cycleqa.webp
+figureAlt: 'Zero-shot segmentation quality degrading across Siemens, Philips, GE and Canon cohorts.'
 draft: false
 ---
 

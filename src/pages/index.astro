@@ -1,4 +1,5 @@
 ---
+import { Image } from 'astro:assets';
 import BaseLayout from '../layouts/BaseLayout.astro';
 import HeroCine from '../components/HeroCine.astro';
 import PublicationCard from '../components/PublicationCard.astro';
@@ -102,10 +103,24 @@ const frameFor = (i: number) => Math.round((i * cine.frames) / Math.max(themes.l
               /* id is the hero chips' anchor target — see `chips` above. */
               <li id={theme.data.id} class="card theme" data-reveal={Math.min(i, 3)}>
                 <div class="card-media">
-                  <CineLoop
-                    alt={`${theme.data.title} — cardiac cine loop`}
-                    frame={frameFor(i)}
-                  />
+                  {/* Each theme shows its own work. The one without a figure
+                      keeps the live cine — which is that theme's output. */}
+                  {
+                    theme.data.figure ? (
+                      <Image
+                        src={theme.data.figure}
+                        alt={theme.data.figureAlt ?? ''}
+                        widths={[420, 840]}
+                        sizes="(width < 60rem) 100vw, 20rem"
+                        loading="lazy"
+                      />
+                    ) : (
+                      <CineLoop
+                        alt={`${theme.data.title} — cardiac cine loop`}
+                        frame={frameFor(i)}
+                      />
+                    )
+                  }
                   <span class="num badge">{String(i + 1).padStart(2, '0')}</span>
                 </div>
                 <div class="card-body">
@@ -296,6 +311,17 @@ const frameFor = (i: number) => Math.round((i * cine.frames) / Math.max(themes.l
 
   .theme .card-media > :global(.cine) {
     width: 100%;
+  }
+
+  .theme .card-media > :global(img) {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    transition: transform var(--dur-slow) var(--ease-out);
+  }
+
+  .theme:hover .card-media > :global(img) {
+    transform: scale(1.04);
   }
 
   .badge {

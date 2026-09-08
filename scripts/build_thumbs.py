@@ -29,6 +29,13 @@ JOBS = [
     (MIUA / "results/figures/fig1_methods.png", "pubs", "miua-4dseg.webp"),
     (MIUA / "metis/figures/fig1_vendor.png", "pubs", "miua-cycleqa.webp"),
     (MIUA / "LLM_shortpaper/llm_fig1.png", "pubs", "miua-llm.webp"),
+    # Same study as the JCMR manuscript, so its graphical abstract stands in
+    # for the ISMRM entry too.
+    (
+        SCRATCH / "ECV_classification/ecv_repo/results/figures/Graphical_Abstract.png",
+        "pubs",
+        "ismrm-ecv.webp",
+    ),
     # Project covers
     (
         SCRATCH / "ECV_classification/ecv_repo/results/figures/Graphical_Abstract.png",

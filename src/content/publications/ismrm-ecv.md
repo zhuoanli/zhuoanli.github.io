@@ -28,6 +28,9 @@ themes:
 
 links: {}
 
+figure: ../../assets/pubs/ismrm-ecv.webp
+figureAlt: 'Synthetic vs measured ECV agreement (R = 0.938) and hematocrit-correlation comparison across models.'
+
 featured: true
 order: 4
 ---

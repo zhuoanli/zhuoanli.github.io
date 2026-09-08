@@ -12,6 +12,8 @@ pubs:
   - miua-4dseg
   - scmr-perfusion
   - scmr-fm-adapting
+figure: ../../assets/pubs/miua-4dseg.webp
+figureAlt: 'Dual-anchored prompting of a medical video foundation model, propagated bidirectionally across the cardiac cycle.'
 draft: false
 ---
 

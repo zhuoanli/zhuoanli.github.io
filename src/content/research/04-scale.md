@@ -10,6 +10,8 @@ order: 4
 pubs:
   - ismrm-ecv
   - scmr-hematocrit
+figure: ../../assets/projects/ecv.webp
+figureAlt: 'Synthetic vs measured ECV agreement across 9,700 examinations, with hematocrit-correlation comparison.'
 draft: false
 ---
 
