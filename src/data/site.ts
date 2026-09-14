@@ -102,11 +102,15 @@ export const site = {
     { id: 'scale', label: 'Registry scale' },
   ],
 
+  /**
+   * Projects stays built (route, collection, cards) but out of the nav —
+   * add the entry back to restore it. The two project cards remain reachable
+   * from the publications they anchor.
+   */
   nav: [
     { href: '/', label: 'Home' },
     { href: '/research', label: 'Research' },
     { href: '/publications', label: 'Publications' },
-    { href: '/projects', label: 'Projects' },
     { href: '/about', label: 'About me' },
     { href: '/cv', label: 'CV' },
   ],
