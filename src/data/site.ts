@@ -14,11 +14,11 @@ export const site = {
   tagline: 'AI for medical imaging',
 
   /**
-   * The positioning statement. Two sentences, declarative, no adjectives doing
-   * work that a number could do. Written in the voice of your own abstracts.
+   * The positioning statement — mirrors the GitHub profile intro, so the two
+   * surfaces say the same thing about the same person.
    */
   statement:
-    'I build and stress-test foundation models for medical imaging — and I am mostly interested in where they quietly fail. My work runs from zero-shot cardiac segmentation that matches supervised baselines without a single label, to showing that a benchmark the field reports as one number is measuring four different things.',
+    'I am a PhD candidate in Biomedical Engineering at Purdue University. I develop and evaluate AI methods for medical imaging, with a focus on cardiac MRI. My research spans foundation models, automated image analysis, and quantitative biomarker estimation, emphasizing model reliability and multicenter validation.',
 
   role: 'PhD Candidate',
   affiliation: 'Purdue University',

@@ -21,7 +21,7 @@ export const copy = {
     research: {
       eyebrow: 'Research',
       title: 'What I work on',
-      lede: 'Four threads. They share a question: where do foundation models quietly fail, and how would you know?',
+      lede: 'Four threads, from foundation models to registry-scale validation — methods first, and the evidence that they hold up.',
       empty: 'Research themes appear here once src/content/research/ has entries.',
       more: 'Read the long version',
     },
