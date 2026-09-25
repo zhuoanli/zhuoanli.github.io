@@ -98,6 +98,10 @@ export const cv: CvSection[] = [
       },
       {
         period: '2026',
+        title: 'SMRA Travel Award',
+      },
+      {
+        period: '2026',
         title: 'Travel Grant Award, College of Engineering',
         org: 'Purdue University',
       },

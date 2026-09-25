@@ -2,7 +2,6 @@
 title: 'Large Language Model Reasoning for Cardiac Pathology Classification from Segmentation-Derived Metrics'
 authors:
   - Zhuoan Li
-  - Behzad Sharif
 venue: MIUA
 venueLong: 'Medical Image Understanding and Analysis (MIUA) 2026 — Short Paper'
 year: 2026

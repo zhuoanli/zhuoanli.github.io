@@ -2,7 +2,6 @@
 title: 'Zero-Shot Full-Cycle 4D Cardiac Cine MRI Segmentation via Dual-Anchored Medical Video Foundation Model'
 authors:
   - Zhuoan Li
-  - Behzad Sharif
 venue: MIUA
 venueLong: 'Medical Image Understanding and Analysis (MIUA) 2026, Springer LNCS — Main Track, Oral Presentation'
 year: 2026
