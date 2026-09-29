@@ -14,15 +14,17 @@ authors:
   - Subha V. Raman
   - Behzad Sharif
 venue: JCMR (SCMR 2024)
-venueLong: 'Journal of Cardiovascular Magnetic Resonance 26, Suppl. 1:100964 — SCMR 2024, Rapid-Fire Presentation'
+venueLong: 'Journal of Cardiovascular Magnetic Resonance 26, Suppl. 1:100964 · SCMR 2024 · Rapid-Fire Presentation'
 year: 2024
 type: abstract
 status: published
 anonymized: false
 
 tldr: >-
-  Uncertainty-guided deep learning segments perfusion CMR across centers and
-  field strengths in the SCMR Registry.
+  Deep learning segmentation with uncertainty-guided analysis handles
+  multicenter, multi-field-strength perfusion CMR from the SCMR Registry,
+  using estimated uncertainty to flag unreliable segmentations instead of
+  trusting every prediction equally.
 highlights: []
 themes:
   - Registry scale

@@ -11,15 +11,17 @@ authors:
   - Subha V. Raman
   - Behzad Sharif
 venue: JCMR (SCMR 2024)
-venueLong: 'Journal of Cardiovascular Magnetic Resonance 26, Suppl. 1:100990 — SCMR 2024'
+venueLong: 'Journal of Cardiovascular Magnetic Resonance 26, Suppl. 1:100990 · SCMR 2024'
 year: 2024
 type: abstract
 status: published
 anonymized: false
 
 tldr: >-
-  Dynamic quality control keeps a clinician in the loop for free-breathing
-  stress perfusion analysis in the SCMR Registry.
+  A clinician-in-the-loop pipeline with dynamic quality control analyzes
+  free-breathing stress perfusion CMR from the SCMR Registry, routing only the
+  automatically flagged low-quality segmentations to a clinician for review
+  rather than requiring full manual oversight.
 highlights: []
 themes:
   - Quality assurance

@@ -3,7 +3,7 @@ title: 'Large Language Model Reasoning for Cardiac Pathology Classification from
 authors:
   - Zhuoan Li
 venue: MIUA
-venueLong: 'Medical Image Understanding and Analysis (MIUA) 2026 — Short Paper'
+venueLong: 'Medical Image Understanding and Analysis (MIUA) 2026 · Short Paper'
 year: 2026
 type: conference
 status: published
@@ -11,13 +11,13 @@ anonymized: false
 
 tldr: >-
   Clinically calibrated chain-of-thought prompting lifts zero-shot cardiac
-  pathology classification from segmentation-derived metrics to 60% accuracy —
-  and the persistent failure on HCM shows the bottleneck is the input, not the
-  prompt.
+  pathology classification from segmentation-derived metrics to 60% accuracy,
+  and the persistent failure on HCM shows the bottleneck is the input, not
+  the prompt.
 highlights:
   - 'Clinically calibrated CoT: 60% accuracy (Macro-F1 0.510) vs 55% direct prompting and 40% naive CoT'
   - 'Rule-based EF baseline reaches only 45% on the same metrics'
-  - 'HCM F1 = 0.000 in every configuration: wall-thickness pathologies are invisible to EF/EDV/ESV alone — an input-level information bottleneck, not a prompting failure'
+  - 'HCM F1 = 0.000 in every configuration: wall-thickness pathologies are invisible to EF/EDV/ESV alone, an input-level information bottleneck rather than a prompting failure'
   - 'Small cohort (n = 20) stated plainly: trends, not statistically certified gains'
 themes:
   - Foundation models
@@ -32,8 +32,9 @@ featured: false
 order: 3
 ---
 
-Automated cardiac MRI pipelines can extract clinical metrics — ejection
-fraction, end-diastolic and end-systolic volumes — from segmentation masks,
+Automated cardiac MRI pipelines can extract clinical metrics such as
+ejection fraction and end-diastolic and end-systolic volumes from
+segmentation masks,
 but turning those numbers into a pathology call still requires specialist
 reasoning. This short paper asks whether a large language model can bridge
 that gap zero-shot.

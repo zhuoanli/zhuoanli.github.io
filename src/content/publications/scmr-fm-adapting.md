@@ -10,16 +10,16 @@ authors:
   - M. Elliott
   - B. Sharif
 venue: JCMR (SCMR 2026)
-venueLong: 'Journal of Cardiovascular Magnetic Resonance 28, Suppl. 1 — SCMR 2026, Rapid-Fire Presentation'
+venueLong: 'Journal of Cardiovascular Magnetic Resonance 28, Suppl. 1 · SCMR 2026 · Rapid-Fire Presentation'
 year: 2026
 type: abstract
 status: published
 anonymized: false
 
 tldr: >-
-  Adapting a pretrained CMR foundation model to perfusion segmentation cuts
-  the manually labeled training data needed by 12× compared with training from
-  scratch.
+  Adapting a pretrained CMR foundation model to perfusion CMR segmentation
+  reaches the accuracy of a model trained from scratch while needing 12 times
+  fewer manually labeled training studies.
 highlights: []
 themes:
   - Foundation models

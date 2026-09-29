@@ -14,17 +14,17 @@ authors:
   - S. V. Raman
   - B. Sharif
 venue: JCMR (SCMR 2025)
-venueLong: 'Journal of Cardiovascular Magnetic Resonance 27, Suppl. 1:101299 — SCMR 2025, Oral Presentation'
+venueLong: 'Journal of Cardiovascular Magnetic Resonance 27, Suppl. 1:101299 · SCMR 2025 · Oral Presentation'
 year: 2025
 type: abstract
 status: published
 anonymized: false
 
 tldr: >-
-  First SCMR Registry results deriving synthetic hematocrit from routine CMR
-  variables with multi-feature deep learning — removing the blood draw from
-  ECV mapping. The line of work that grew into the 9,700-exam ISMRM 2026
-  study.
+  Initial SCMR Registry results showing that multi-feature deep learning over
+  routine CMR variables derives synthetic hematocrit accurately enough to
+  compute ECV without a same-day blood draw. This is the line of work that
+  grew into the 9,700-exam ISMRM 2026 study.
 highlights: []
 themes:
   - Registry scale
