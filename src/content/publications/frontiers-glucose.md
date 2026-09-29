@@ -38,5 +38,5 @@ figure: ../../assets/pubs/frontiers-glucose.webp
 figureAlt: 'Study flow: 350 patients referred for CMR evaluation of possible HCM, 108 confirmed HCM stratified by HbA1c into HCM, prediabetes-HCM and diabetes-HCM subgroups, with 30 matched controls.'
 
 featured: false
-order: 2
+order: 3
 ---
