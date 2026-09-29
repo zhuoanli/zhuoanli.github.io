@@ -26,6 +26,7 @@ themes:
 
 links:
   code: https://github.com/zhuoanli/CycleQA
+  spotlight: https://youtu.be/RpMuY7STdAQ
 
 figure: ../../assets/pubs/miua-cycleqa.webp
 figureAlt: 'CycleQA method overview: dual-anchored zero-shot segmentation, cycle disagreement as a reliability signal, quality prediction, and risk-based reselection.'

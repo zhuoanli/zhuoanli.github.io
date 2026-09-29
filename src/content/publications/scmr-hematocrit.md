@@ -30,8 +30,10 @@ themes:
   - Registry scale
   - Clinical validation
 
+# The recording is the ISMRM 2025 presentation of this line of work.
 links:
   doi: https://doi.org/10.1016/j.jocmr.2024.101299
+  recording: https://drive.google.com/file/d/1IbrDnEgxhynBp4QBRDgcrftWf6hNWca3/view
 
 featured: false
 order: 1

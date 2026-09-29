@@ -25,6 +25,8 @@ themes:
 
 links:
   code: https://github.com/zhuoanli/4DCMR-Segmentation-via-Foundation-Model
+  recording: https://youtu.be/pSBnU-2ypbA
+  spotlight: https://youtu.be/CfBvbJTc5Gk
 
 figure: ../../assets/pubs/miua-4dseg.webp
 figureAlt: 'Method overview: dual-anchored prompting at ED and ES with bidirectional propagation merged at the temporal midpoint.'

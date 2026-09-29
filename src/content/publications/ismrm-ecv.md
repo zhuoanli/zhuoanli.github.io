@@ -1,11 +1,17 @@
 ---
 title: 'Deep Learning-based Estimation of Myocardial Extracellular Volume Without Blood Sampling: Multicenter Study in 9,700 Patients'
-# The presentation title slide credits "Zhuoan Li, Purdue University"; the
-# LinkedIn post thanks collaborators (Youssef, Polsani, Elliott, Dharmakumar,
-# Judd, Shah, Simonetti, Tong, Sharif) without an ordered author list.
-# TODO: complete the list from the accepted abstract when convenient.
+# Author list from the ISMRM 2026 abstract page (607-01-003).
 authors:
   - Zhuoan Li
+  - Khalid Youssef
+  - Venkateshwar Polsani
+  - Michael Elliott
+  - Rohan Dharmakumar
+  - Robert Judd
+  - Dipan Shah
+  - Orlando Simonetti
+  - Matthew Tong
+  - Behzad Sharif
 venue: ISMRM
 venueLong: 'ISMRM Annual Meeting 2026, Cape Town · Oral, Advanced Cardiac Quantification Methods session · Summa Cum Laude Merit Award'
 year: 2026

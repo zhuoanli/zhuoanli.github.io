@@ -37,6 +37,7 @@ themes:
 
 links:
   doi: https://doi.org/10.1016/j.jocmr.2025.102237
+  recording: https://drive.google.com/file/d/16Y-MgCWwAahMrZxWqXU1tU4jQEW5Sggz/view
 
 figure: ../../assets/pubs/scmr-perfusion.webp
 figureAlt: 'Framework: masked autoencoder pretraining on cine CMR, then the pretrained encoder is fine-tuned to classify stress perfusion series as normal or abnormal.'

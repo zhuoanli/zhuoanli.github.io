@@ -8,6 +8,7 @@ const link = z
     arxiv: z.string().optional(),
     doi: z.string().optional(),
     recording: z.string().optional(),
+    spotlight: z.string().optional(),
     poster: z.string().optional(),
     slides: z.string().optional(),
     bibtex: z.string().optional(),
