@@ -23,7 +23,8 @@ themes:
   - Foundation models
   - Zero-shot
 
-links: {}
+links:
+  code: https://github.com/zhuoanli/llm-cardiac-pathology
 
 figure: ../../assets/pubs/miua-llm.webp
 figureAlt: 'Prompting strategies compared: direct classification, naive chain-of-thought, and clinically calibrated chain-of-thought with diagnostic thresholds.'
