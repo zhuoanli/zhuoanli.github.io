@@ -25,6 +25,8 @@ themes:
 
 links:
   code: https://github.com/zhuoanli/llm-cardiac-pathology
+  spotlight: https://youtu.be/ibO_YTKfKM0
+  slides: /media/miua-llm-slides.pptx
 
 figure: ../../assets/pubs/miua-llm.webp
 figureAlt: 'Prompting strategies compared: direct classification, naive chain-of-thought, and clinically calibrated chain-of-thought with diagnostic thresholds.'
